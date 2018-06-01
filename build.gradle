@@ -1,0 +1,31 @@
+buildscript {
+    ext.kotlin_version = '1.1.4-3'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+group 'io.ghostbuster91'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.xenomachina:kotlin-argparser:2.0.7"
+
+    compile "com.squareup.retrofit2:retrofit:2.3.0"
+    compile "com.squareup.retrofit2:converter-moshi:2.3.0"
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
