@@ -7,7 +7,6 @@ import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.Okio
 import java.io.File
-import java.io.IOException
 
 class OkHttpFileDownloader {
 
@@ -25,25 +24,21 @@ class OkHttpFileDownloader {
         return client.newCall(request).execute()
     }
 
-    private fun saveResponse(body: ResponseBody, destination: File, progressBarUpdater: progressBarUpdater) {
-        val DOWNLOAD_CHUNK_SIZE = 2048L //Same as Okio Segment.SIZE
-        try {
-            val contentLength = body.contentLength()
+    private fun saveResponse(body: ResponseBody, destination: File, progressBarUpdater: (Int) -> Unit) {
+        Okio.buffer(Okio.sink(destination)).use { sink ->
+            val downloadChunkSize = 2048L //Same as Okio Segment.SIZE
             val source = body.source()
-            val sink = Okio.buffer(Okio.sink(destination))
             var totalRead: Long = 0
             val buffer = sink.buffer()
+            val contentLength = body.contentLength()
             while (!buffer.exhausted()) {
-                val read = source.read(buffer, DOWNLOAD_CHUNK_SIZE)
+                val read = source.read(buffer, downloadChunkSize)
                 totalRead += read
                 val progress = (totalRead * 100 / contentLength).toInt()
                 progressBarUpdater(progress)
             }
             sink.writeAll(source)
             sink.flush()
-            sink.close()
-        } catch (e: IOException) {
-            println(e)
         }
     }
 }

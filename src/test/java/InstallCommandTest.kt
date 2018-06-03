@@ -1,12 +1,27 @@
+import io.ghostbuster91.ktm.JitPackDownloader
 import io.ghostbuster91.ktm.executeInstallCommand
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class InstallCommandTest {
 
+    @JvmField
+    @Rule
+    val testFolderRuler = TemporaryFolder()
+
     @Test
     fun name() {
-        val fileDownloader: (String, File) -> Unit = { url, path -> }
-        executeInstallCommand("http://github.com/myOrg/myRepo","1.1", fileDownloader)
+        executeInstallCommand("github.com/myOrg/myRepo", "1.1", downloader, { testFolderRuler.root },{})
+    }
+
+    val downloader = object : JitPackDownloader {
+        override fun fetchBuildLog(name: String, version: String): String {
+            return ""
+        }
+
+        override fun downloadFile(name: String, version: String, file: String, path: File, updateProgress: (Int) -> Unit) {
+        }
     }
 }

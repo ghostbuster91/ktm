@@ -2,7 +2,6 @@ package io.ghostbuster91.ktm
 
 import com.xenomachina.argparser.ArgParser
 import java.io.File
-import java.net.URL
 
 class ParsedArgs(parser: ArgParser) {
     val name by parser.positional("name of the repository")
@@ -17,43 +16,59 @@ fun main(args: Array<String>) {
             .run {
                 println("Hello, $name! $version")
                 val updateProgressBar: (Int) -> Unit = { println(it) }
-                val okHttpFileDownloader = OkHttpFileDownloader()
-                executeInstallCommand(name, version, okHttpFileDownloader::downloadFile.rcurry(updateProgressBar))
+                val homeDirProvider = { File(System.getProperty("user.home")) }
+                executeInstallCommand(name, version, RealJitPackDownloader(), homeDirProvider, updateProgressBar)
             }
 }
 
-fun executeInstallCommand(name: String, version: String, fileDownloader: (String, File) -> Unit) {
-    val homeDir = System.getProperty("user.home")
-    val ktmDir = File(homeDir, ".ktm")
-    val libDir = File(ktmDir, name.replace("/", "."))
-    val versionedLibDir = File(libDir, version)
+fun executeInstallCommand(name: String, version: String, downloaderReal: JitPackDownloader, getHomeDir: GetHomeDir, updateProgressBar: (Int) -> Unit) {
+    val versionedLibDir = getVersionedLibDir(getHomeDir, name, version)
     if (!versionedLibDir.exists()) {
         versionedLibDir.mkdirs()
+        log("Versioned lib dir created at ${versionedLibDir.path}")
     }
-    log(libDir.toString())
-    downloadArtifacts(name, version, versionedLibDir, fileDownloader)
+    downloadArtifacts(name, version, versionedLibDir, downloaderReal, updateProgressBar)
 }
 
-private fun downloadArtifacts(name: String, version: String, versionedLibDir: File, fileDownloader: (String, File) -> Unit) {
-    val jitPackUrl = "https://jitpack.io"
-    val buildLog = URL("$jitPackUrl/$name/$version/build.log").readText()
+private fun getVersionedLibDir(getHomeDir: GetHomeDir, name: String, version: String) =
+        getHomeDir()
+                .createChild(".ktm")
+                .createChild(name.replace("/", "."))
+                .createChild(version)
+
+
+private fun downloadArtifacts(
+        name: String,
+        version: String,
+        versionedLibDir: File,
+        jitPackDownloader: JitPackDownloader,
+        updateProgressBar: (Int) -> Unit
+) {
+    val buildLog = jitPackDownloader.fetchBuildLog(name, version)
     val files = buildLog.substringAfterLast("Files:")
     log("files : $files")
     files.split("\n")
             .filter { it.isNotBlank() }
             .drop(1)
-            .map {
-                val source = "$jitPackUrl/$name/$version/$it"
-                val destination = File(versionedLibDir, it.substringAfterLast("$version/"))
-                source to destination
-            }
-            .forEach { (source, destination) ->
-                println("Processing file $destination")
-                fileDownloader(source, destination)
+            .forEach { file ->
+                downloadArtifact(versionedLibDir, file, version, jitPackDownloader, name, updateProgressBar)
             }
 }
 
-typealias logger = (String) -> Unit
-typealias progressBarUpdater = (Int) -> Unit
+private fun downloadArtifact(
+        versionedLibDir: File,
+        file: String,
+        version: String,
+        jitPackDownloader: JitPackDownloader,
+        name: String,
+        updateProgressBar: (Int) -> Unit
+) {
+    val destination = versionedLibDir.createChild(file.substringAfterLast("$version/"))
+    println("Processing path $destination")
+    jitPackDownloader.downloadFile(name, version, file, destination, updateProgressBar)
+}
 
-fun <T1, T2, T3, R> ((T1, T2, T3) -> R).rcurry(t3: T3): (T1, T2) -> R = { t1, t2 -> this(t1, t2, t3) }
+typealias logger = (String) -> Unit
+typealias GetHomeDir = () -> File
+
+private fun File.createChild(childName: String) = File(this, childName)
