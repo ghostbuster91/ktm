@@ -1,14 +1,7 @@
 package io.ghostbuster91.ktm
 
 import com.xenomachina.argparser.ArgParser
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.ResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
-import okio.Okio
 import java.io.File
-import java.io.IOException
 import java.net.URL
 
 class ParsedArgs(parser: ArgParser) {
@@ -16,17 +9,20 @@ class ParsedArgs(parser: ArgParser) {
     val version by parser.positional("version")
 }
 
+val log: logger = { println(it) }
+
 fun main(args: Array<String>) {
-    val logger: (String) -> Unit = { println(it) }
     ArgParser(args)
             .parseInto(::ParsedArgs)
             .run {
                 println("Hello, $name! $version")
-                doAll(name, version, logger)
+                val updateProgressBar: (Int) -> Unit = { println(it) }
+                val okHttpFileDownloader = OkHttpFileDownloader()
+                executeInstallCommand(name, version, okHttpFileDownloader::downloadFile.rcurry(updateProgressBar))
             }
 }
 
-private fun doAll(name: String, version: String, logger: logger) {
+fun executeInstallCommand(name: String, version: String, fileDownloader: (String, File) -> Unit) {
     val homeDir = System.getProperty("user.home")
     val ktmDir = File(homeDir, ".ktm")
     val libDir = File(ktmDir, name.replace("/", "."))
@@ -34,16 +30,15 @@ private fun doAll(name: String, version: String, logger: logger) {
     if (!versionedLibDir.exists()) {
         versionedLibDir.mkdirs()
     }
-    logger(libDir.toString())
-    val progressBarUpdater: (Int) -> Unit = { println(it) }
-    downloadArtifacts(name, version, logger, versionedLibDir, { a, b -> downloadFile(a, b, progressBarUpdater) })
+    log(libDir.toString())
+    downloadArtifacts(name, version, versionedLibDir, fileDownloader)
 }
 
-private fun downloadArtifacts(name: String, version: String, logger: logger, versionedLibDir: File, fileDownloader: (String, File) -> Unit) {
+private fun downloadArtifacts(name: String, version: String, versionedLibDir: File, fileDownloader: (String, File) -> Unit) {
     val jitPackUrl = "https://jitpack.io"
     val buildLog = URL("$jitPackUrl/$name/$version/build.log").readText()
     val files = buildLog.substringAfterLast("Files:")
-    logger("files : $files")
+    log("files : $files")
     files.split("\n")
             .filter { it.isNotBlank() }
             .drop(1)
@@ -58,41 +53,7 @@ private fun downloadArtifacts(name: String, version: String, logger: logger, ver
             }
 }
 
-
-private fun downloadFile(source: String, destination: File, progressBarUpdater: (Int) -> Unit) {
-    val response = download(source)
-    saveResponse(response.body()!!, destination, progressBarUpdater)
-}
-
-private fun download(uri: String): Response {
-    val client = OkHttpClient.Builder()
-            .addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            .build()
-    val request = Request.Builder().url(uri).build()
-    return client.newCall(request).execute()
-}
-
-fun saveResponse(body: ResponseBody, destination: File, progressBarUpdater: progressBarUpdater) {
-    val DOWNLOAD_CHUNK_SIZE = 2048L //Same as Okio Segment.SIZE
-    try {
-        val contentLength = body.contentLength()
-        val source = body.source()
-        val sink = Okio.buffer(Okio.sink(destination))
-        var totalRead: Long = 0
-        val buffer = sink.buffer()
-        while (!buffer.exhausted()) {
-            val read = source.read(buffer, DOWNLOAD_CHUNK_SIZE)
-            totalRead += read
-            val progress = (totalRead * 100 / contentLength).toInt()
-            progressBarUpdater(progress)
-        }
-        sink.writeAll(source)
-        sink.flush()
-        sink.close()
-    } catch (e: IOException) {
-        println(e)
-    }
-}
-
 typealias logger = (String) -> Unit
 typealias progressBarUpdater = (Int) -> Unit
+
+fun <T1, T2, T3, R> ((T1, T2, T3) -> R).rcurry(t3: T3): (T1, T2) -> R = { t1, t2 -> this(t1, t2, t3) }
