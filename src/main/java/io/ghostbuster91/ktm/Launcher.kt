@@ -64,11 +64,11 @@ fun executeInstallCommand(name: String, version: String, downloaderReal: JitPack
         versionedLib.mkdirs()
     }
     try {
-        downloadArtifacts(name, version, libraryDir, downloaderReal, updateProgressBar)
+        downloadArtifacts(name, version, versionedLib, downloaderReal, updateProgressBar)
         logger.info("Done")
     } catch (ex: Exception) {
         logger.error("Error during downloading library", ex)
-        libraryDir.deleteRecursively()
+        versionedLib.deleteRecursively()
     }
 }
 
