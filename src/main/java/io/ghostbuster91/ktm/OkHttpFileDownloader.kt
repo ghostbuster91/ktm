@@ -8,10 +8,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okio.Okio
 import java.io.File
 
-class OkHttpFileDownloader {
+class OkHttpFileDownloader(logger: HttpLoggingInterceptor.Logger) {
 
     private val client = OkHttpClient.Builder()
-            .addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            .addNetworkInterceptor(HttpLoggingInterceptor(logger).setLevel(HttpLoggingInterceptor.Level.BASIC))
             .build()
 
     fun downloadFile(source: String, destination: File, progressUpdate: (Int) -> Unit) {

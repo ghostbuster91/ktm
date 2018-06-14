@@ -1,40 +1,82 @@
 package io.ghostbuster91.ktm
 
 import com.xenomachina.argparser.ArgParser
+import io.reactivex.Observable
+import jline.TerminalFactory
+import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 class ParsedArgs(parser: ArgParser) {
     val name by parser.positional("name of the repository")
     val version by parser.positional("version")
 }
 
-val log: logger = { println(it) }
+val logger: Logger = object : Logger {
+
+    var charsInLine = 0
+
+    override fun error(msg: String, e: Throwable) {
+        println("$msg : $e")
+    }
+
+    override fun log(msg: String) {
+//        println(msg) // TODO write to file
+    }
+
+    override fun append(msg: String) {
+        charsInLine += msg.length
+        if (charsInLine > TerminalFactory.get().width) {
+            println()
+            charsInLine = msg.length
+        }
+        print(msg)
+    }
+
+    override fun info(msg: String) {
+        println(msg)
+    }
+}
 
 fun main(args: Array<String>) {
     ArgParser(args)
             .parseInto(::ParsedArgs)
             .run {
-                println("Hello, $name! $version")
+                logger.info("Installing $name $version")
                 val updateProgressBar: (Int) -> Unit = { println(it) }
                 val homeDirProvider = { File(System.getProperty("user.home")) }
-                executeInstallCommand(name, version, RealJitPackDownloader(), homeDirProvider, updateProgressBar)
+                executeInstallCommand(name, version, RealJitPackDownloader(logger), homeDirProvider, updateProgressBar)
             }
 }
 
 fun executeInstallCommand(name: String, version: String, downloaderReal: JitPackDownloader, getHomeDir: GetHomeDir, updateProgressBar: (Int) -> Unit) {
-    val versionedLibDir = getVersionedLibDir(getHomeDir, name, version)
-    if (!versionedLibDir.exists()) {
-        versionedLibDir.mkdirs()
-        log("Versioned lib dir created at ${versionedLibDir.path}")
+    val libraryDir = getLibraryDir(getHomeDir, name, version)
+    if (!libraryDir.exists()) {
+        libraryDir.mkdirs()
+        logger.info("Library dir created at ${libraryDir.path}")
     }
-    downloadArtifacts(name, version, versionedLibDir, downloaderReal, updateProgressBar)
+    val versionedLib = libraryDir.createChild(version)
+    if (versionedLib.exists()) {
+        logger.info("$name already installed with version $version")
+        logger.info("Skipping")
+        return
+    } else {
+        versionedLib.mkdirs()
+    }
+    try {
+        downloadArtifacts(name, version, libraryDir, downloaderReal, updateProgressBar)
+        logger.info("Done")
+    } catch (ex: Exception) {
+        logger.error("Error during downloading library", ex)
+        libraryDir.deleteRecursively()
+    }
 }
 
-private fun getVersionedLibDir(getHomeDir: GetHomeDir, name: String, version: String) =
+private fun getLibraryDir(getHomeDir: GetHomeDir, name: String, version: String) =
         getHomeDir()
                 .createChild(".ktm")
+                .createChild("modules")
                 .createChild(name.replace("/", "."))
-                .createChild(version)
 
 
 private fun downloadArtifacts(
@@ -44,15 +86,17 @@ private fun downloadArtifacts(
         jitPackDownloader: JitPackDownloader,
         updateProgressBar: (Int) -> Unit
 ) {
-    val buildLog = jitPackDownloader.fetchBuildLog(name, version)
-    val files = buildLog.substringAfterLast("Files:")
-    log("files : $files")
-    files.split("\n")
-            .filter { it.isNotBlank() }
-            .drop(1)
-            .forEach { file ->
-                downloadArtifact(versionedLibDir, file, version, jitPackDownloader, name, updateProgressBar)
-            }
+    logger.append("Fetching build log from JitPack...")
+    val waitingIndicator = Observable.interval(100, TimeUnit.MILLISECONDS)
+            .doOnNext { logger.append(".") }
+    val buildLog = jitPackDownloader.fetchBuildLog(name, version, waitingIndicator)
+    val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
+    logger.info("")
+    logger.info("Found ${files.size} files")
+    files.forEachIndexed { index, file ->
+        println("Downloading file ${index + 1}/${files.size}: ${file.substringAfterLast("/")}")
+        downloadArtifact(versionedLibDir, file, version, jitPackDownloader, name, updateProgressBar)
+    }
 }
 
 private fun downloadArtifact(
@@ -64,11 +108,15 @@ private fun downloadArtifact(
         updateProgressBar: (Int) -> Unit
 ) {
     val destination = versionedLibDir.createChild(file.substringAfterLast("$version/"))
-    println("Processing path $destination")
     jitPackDownloader.downloadFile(name, version, file, destination, updateProgressBar)
 }
 
-typealias logger = (String) -> Unit
+interface Logger : HttpLoggingInterceptor.Logger {
+    fun error(msg: String, e: Throwable)
+    override fun log(msg: String)
+    fun append(msg: String)
+    fun info(msg: String)
+}
 typealias GetHomeDir = () -> File
 
 private fun File.createChild(childName: String) = File(this, childName)
