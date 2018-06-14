@@ -50,7 +50,7 @@ fun main(args: Array<String>) {
 }
 
 fun executeInstallCommand(name: String, version: String, downloaderReal: JitPackDownloader, getHomeDir: GetHomeDir, updateProgressBar: (Int) -> Unit) {
-    val libraryDir = getLibraryDir(getHomeDir, name, version)
+    val libraryDir = getLibraryDir(getHomeDir, name)
     if (!libraryDir.exists()) {
         libraryDir.mkdirs()
         logger.info("Library dir created at ${libraryDir.path}")
@@ -72,7 +72,7 @@ fun executeInstallCommand(name: String, version: String, downloaderReal: JitPack
     }
 }
 
-private fun getLibraryDir(getHomeDir: GetHomeDir, name: String, version: String) =
+private fun getLibraryDir(getHomeDir: GetHomeDir, name: String) =
         getHomeDir()
                 .createChild(".ktm")
                 .createChild("modules")
