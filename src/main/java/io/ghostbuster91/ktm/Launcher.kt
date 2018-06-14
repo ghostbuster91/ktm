@@ -21,7 +21,7 @@ val logger: Logger = object : Logger {
     }
 
     override fun log(msg: String) {
-//        println(msg) // TODO write to file
+        println(msg) // TODO write to file
     }
 
     override fun append(msg: String) {
@@ -45,7 +45,11 @@ fun main(args: Array<String>) {
                 logger.info("Installing $name $version")
                 val updateProgressBar: (Int) -> Unit = { println(it) }
                 val homeDirProvider = { File(System.getProperty("user.home")) }
-                executeInstallCommand(name, version, RealJitPackDownloader(logger), homeDirProvider, updateProgressBar)
+                executeInstallCommand(name, version, RealJitPackDownloader(logger, ProgressListener { bytesRead, contentLength, done ->
+                    if (contentLength != -1L) {
+                        logger.info("${100 * bytesRead / contentLength}")
+                    }
+                }), homeDirProvider, updateProgressBar)
             }
 }
 
@@ -64,7 +68,7 @@ fun executeInstallCommand(name: String, version: String, downloaderReal: JitPack
         versionedLib.mkdirs()
     }
     try {
-        downloadArtifacts(name, version, versionedLib, downloaderReal, updateProgressBar)
+        downloadArtifacts(name, version, versionedLib, downloaderReal)
         logger.info("Done")
     } catch (ex: Exception) {
         logger.error("Error during downloading library", ex)
@@ -83,8 +87,7 @@ private fun downloadArtifacts(
         name: String,
         version: String,
         versionedLibDir: File,
-        jitPackDownloader: JitPackDownloader,
-        updateProgressBar: (Int) -> Unit
+        jitPackDownloader: JitPackDownloader
 ) {
     logger.append("Fetching build log from JitPack...")
     val waitingIndicator = Observable.interval(100, TimeUnit.MILLISECONDS)
@@ -94,21 +97,21 @@ private fun downloadArtifacts(
     logger.info("")
     logger.info("Found ${files.size} files")
     files.forEachIndexed { index, file ->
-        println("Downloading file ${index + 1}/${files.size}: ${file.substringAfterLast("/")}")
-        downloadArtifact(versionedLibDir, file, version, jitPackDownloader, name, updateProgressBar)
+        val fileName = file.substringAfterLast("$version/")
+        println("Downloading file ${index + 1}/${files.size}: $fileName")
+        downloadArtifact(versionedLibDir, version, jitPackDownloader, name, fileName)
     }
 }
 
 private fun downloadArtifact(
         versionedLibDir: File,
-        file: String,
         version: String,
         jitPackDownloader: JitPackDownloader,
         name: String,
-        updateProgressBar: (Int) -> Unit
+        fileName: String
 ) {
-    val destination = versionedLibDir.createChild(file.substringAfterLast("$version/"))
-    jitPackDownloader.downloadFile(name, version, file, destination, updateProgressBar)
+    val destination = versionedLibDir.createChild(fileName)
+    jitPackDownloader.downloadFile(name, version, fileName, destination)
 }
 
 interface Logger : HttpLoggingInterceptor.Logger {

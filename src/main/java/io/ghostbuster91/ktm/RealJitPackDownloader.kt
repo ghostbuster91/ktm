@@ -8,21 +8,21 @@ interface JitPackDownloader {
 
     fun fetchBuildLog(name: String, version: String, waitingIndicator: Observable<Long>): String
 
-    fun downloadFile(name: String, version: String, file: String, path: File, updateProgress: (Int) -> Unit)
+    fun downloadFile(name: String, version: String, file: String, path: File)
 
 }
 
-class RealJitPackDownloader(logger: Logger) : JitPackDownloader {
+class RealJitPackDownloader(logger: Logger, progressListener: ProgressListener) : JitPackDownloader {
 
-    private val okHttpFileDownloader = OkHttpFileDownloader(logger)
+    private val okHttpFileDownloader = OkHttpFileDownloader(logger, progressListener)
 
     override fun fetchBuildLog(name: String, version: String, waitingIndicator: Observable<Long>): String {
         val waiter = waitingIndicator.subscribe()
         return URL("$jitPackUrl/$name/$version/build.log").readText().also { waiter.dispose() }
     }
 
-    override fun downloadFile(name: String, version: String, file: String, path: File, updateProgress: (Int) -> Unit) {
-        okHttpFileDownloader.downloadFile("$jitPackUrl/$name/$version/", path, updateProgress)
+    override fun downloadFile(name: String, version: String, file: String, path: File) {
+        okHttpFileDownloader.downloadFile("$jitPackUrl/$name/$version/$file", path)
     }
 
     companion object {
