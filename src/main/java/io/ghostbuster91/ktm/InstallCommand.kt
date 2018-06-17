@@ -21,7 +21,7 @@ fun executeInstallCommand(name: String, version: String, jitPack: JitPack, getHo
 }
 
 private fun installImpl(jitPack: JitPack, name: String, version: String, libraryDir: File, ktmDir: File, unifiedName: String) {
-    val artifacts = jitPack.getArtifactsNames(name, version)
+    val artifacts = jitPack.getRelatedFiles(name, version)
     val tarFile = artifacts.first { it.substringAfterLast(".") == "tar" }
     logger.info("Decompressing files from $tarFile")
     val files = decompress(tarFile, libraryDir)
@@ -43,15 +43,6 @@ private fun File.deleteOnError(function: () -> Unit) {
         function()
     } catch (ex: Exception) {
         deleteRecursively()
-    }
-}
-
-private fun JitPack.getArtifactsNames(name: String, version: String): List<String> {
-    return try {
-        getRelatedFiles(name, version)
-    } catch (ex: Exception) {
-        logger.error("Error during downloading library", ex)
-        throw ex
     }
 }
 
