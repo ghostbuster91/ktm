@@ -43,17 +43,19 @@ fun main(args: Array<String>) {
             .parseInto(::ParsedArgs)
             .run {
                 logger.info("Installing $name $version")
-                val updateProgressBar: (Int) -> Unit = { println(it) }
                 val homeDirProvider = { File(System.getProperty("user.home")) }
-                executeInstallCommand(name, version, RealJitPackDownloader(logger, ProgressListener { bytesRead, contentLength, done ->
-                    if (contentLength != -1L) {
-                        logger.info("${100 * bytesRead / contentLength}")
+                executeInstallCommand(name, version, RealJitPackDownloader(logger, {
+                    val pb = ProgressBar()
+                    ProgressListener { bytesRead, contentLength ->
+                        if (contentLength != -1L) {
+                            pb.update(Math.min(bytesRead, contentLength) ,contentLength)
+                        }
                     }
-                }), homeDirProvider, updateProgressBar)
+                }), homeDirProvider)
             }
 }
 
-fun executeInstallCommand(name: String, version: String, downloaderReal: JitPackDownloader, getHomeDir: GetHomeDir, updateProgressBar: (Int) -> Unit) {
+fun executeInstallCommand(name: String, version: String, downloaderReal: JitPackDownloader, getHomeDir: GetHomeDir) {
     val libraryDir = getLibraryDir(getHomeDir, name)
     if (!libraryDir.exists()) {
         libraryDir.mkdirs()

@@ -12,7 +12,7 @@ interface JitPackDownloader {
 
 }
 
-class RealJitPackDownloader(logger: Logger, progressListener: ProgressListener) : JitPackDownloader {
+class RealJitPackDownloader(logger: Logger, progressListener: () -> ProgressListener) : JitPackDownloader {
 
     private val okHttpFileDownloader = OkHttpFileDownloader(logger, progressListener)
 

@@ -6,13 +6,13 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
 
-class OkHttpFileDownloader(logger: HttpLoggingInterceptor.Logger, progressListener: ProgressListener) {
+class OkHttpFileDownloader(logger: HttpLoggingInterceptor.Logger, progressListener: () -> ProgressListener) {
 
     private val client = OkHttpClient.Builder()
             .addNetworkInterceptor(HttpLoggingInterceptor(logger).setLevel(HttpLoggingInterceptor.Level.BASIC))
             .addNetworkInterceptor { chain ->
                 val response = chain.proceed(chain.request())
-                response.newBuilder().body(ProgressResponseBody(response.body(), progressListener)).build()
+                response.newBuilder().body(ProgressResponseBody(response.body(), progressListener())).build()
             }
             .build()
 
