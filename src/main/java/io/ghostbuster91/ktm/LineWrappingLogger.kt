@@ -4,7 +4,7 @@ import jline.TerminalFactory
 
 class LineWrappingLogger : Logger {
 
-    var charsInLine = 0
+    private var charsInLine = 0
 
     override fun error(msg: String, e: Throwable) {
         println("$msg : $e")
