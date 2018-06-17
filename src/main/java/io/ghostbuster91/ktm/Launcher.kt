@@ -10,7 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-class Tool : NoRunCliktCommand()
+class KTM : NoRunCliktCommand()
 
 class Install : CliktCommand() {
     private val name by argument()
@@ -34,7 +34,7 @@ val logger: Logger = LineWrappingLogger()
 
 fun main(args: Array<String>) {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    Tool().subcommands(Install(), Version()).main(args)
+    KTM().subcommands(Install(), Version()).main(args)
 }
 
 fun createWaitingIndicator() = Observable.interval(100, TimeUnit.MILLISECONDS)
