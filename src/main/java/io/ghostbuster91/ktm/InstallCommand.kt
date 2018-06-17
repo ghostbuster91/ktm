@@ -22,12 +22,17 @@ fun executeInstallCommand(name: String, version: String, jitPack: JitPack, getHo
 
 private fun installImpl(jitPack: JitPack, name: String, version: String, libraryDir: File, ktmDir: File, unifiedName: String) {
     val artifacts = jitPack.getRelatedFiles(name, version)
-    val tarFile = artifacts.first { it.substringAfterLast(".") == "tar" }
+    require(artifacts.isNotEmpty(), { "Didn't find any artifacts!" })
+    logger.info("Found ${artifacts.size} files:")
+    artifacts.forEach(logger::info)
+    val tarFile = artifacts.firstOrNull { it.substringAfterLast(".") == "tar" }
+    require(tarFile != null, { "No tar archives found!" })
     logger.info("Decompressing files from $tarFile")
-    val files = decompress(tarFile, libraryDir)
+    val files = decompress(tarFile!!, libraryDir)
     logger.info("Looking for binary file...")
-    val binaryFile = files.first { it.name.extension.isEmpty() }
-    logger.info("Found ${binaryFile.name.baseName}")
+    val binaryFile = files.firstOrNull { it.name.extension.isEmpty() }
+    require(binaryFile != null, { "No binary files found!" })
+    logger.info("Found ${binaryFile!!.name.baseName}")
     logger.info("Making executable")
     binaryFile.setExecutable(true, true)
     val symlink = ktmDir.createChild("bin").apply { mkdir() }.createChild(unifiedName.substringAfterLast("."))
@@ -43,6 +48,7 @@ private fun File.deleteOnError(function: () -> Unit) {
         function()
     } catch (ex: Exception) {
         deleteRecursively()
+        throw ex
     }
 }
 
@@ -64,9 +70,7 @@ private fun JitPack.getRelatedFiles(name: String, version: String): List<String>
     logger.append("Fetching build log from JitPack...")
     val buildLog = fetchBuildLog(name, version)
     val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
-    logger.info("Found ${files.size} files:")
-    files.forEach(logger::info)
-    return files.map { "${JitPack.jitPackUrl}/$it" }
+    return files.map { getFileUrl(it) }
 }
 
 private fun File.createChild(childName: String) = File(this, childName)

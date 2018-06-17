@@ -7,15 +7,21 @@ interface JitPack {
 
     fun fetchBuildLog(name: String, version: String): String
 
-    companion object {
-        const val jitPackUrl = "https://jitpack.io"
-    }
+    fun getFileUrl(fileName: String) : String
 }
 
 class JitPackImpl(private val waitingIndicator: Observable<Long>) : JitPack {
 
     override fun fetchBuildLog(name: String, version: String): String {
         val waiter = waitingIndicator.subscribe()
-        return URL("${JitPack.jitPackUrl}/$name/$version/build.log").readText().also { waiter.dispose() }
+        return URL("$jitPackUrl/$name/$version/build.log").readText().also { waiter.dispose() }
+    }
+
+    override fun getFileUrl(fileName: String): String {
+        return "$jitPackUrl/$fileName"
+    }
+
+    companion object {
+        private const val jitPackUrl = "https://jitpack.io"
     }
 }
