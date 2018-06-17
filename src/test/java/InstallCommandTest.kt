@@ -1,4 +1,4 @@
-import io.ghostbuster91.ktm.JitPackDownloader
+import io.ghostbuster91.ktm.JitPack
 import io.ghostbuster91.ktm.executeInstallCommand
 import org.junit.Rule
 import org.junit.Test
@@ -16,7 +16,7 @@ class InstallCommandTest {
         executeInstallCommand("github.com/myOrg/myRepo", "1.1", downloader, { testFolderRuler.root },{})
     }
 
-    val downloader = object : JitPackDownloader {
+    val downloader = object : JitPack {
         override fun fetchBuildLog(name: String, version: String): String {
             return ""
         }
