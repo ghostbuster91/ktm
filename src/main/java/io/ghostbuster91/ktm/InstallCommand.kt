@@ -16,22 +16,22 @@ fun executeInstallCommand(name: String, version: String, jitPack: JitPack, getHo
             installImpl(jitPack, name, version, libraryDir, ktmDir, unifiedName)
         }
     } else {
-        println("Library already installed in given version!")
+        logger.info("Library already installed in given version!")
     }
 }
 
 private fun installImpl(jitPack: JitPack, name: String, version: String, libraryDir: File, ktmDir: File, unifiedName: String) {
     val artifacts = jitPack.getArtifactsNames(name, version)
     val tarFile = artifacts.first { it.substringAfterLast(".") == "tar" }
-    println("Decompressing files from $tarFile")
+    logger.info("Decompressing files from $tarFile")
     val files = decompress(tarFile, libraryDir)
-    println("Looking for binary file...")
+    logger.info("Looking for binary file...")
     val binaryFile = files.first { it.name.extension.isEmpty() }
-    println("Found ${binaryFile.name.baseName}")
-    println("Making executable")
+    logger.info("Found ${binaryFile.name.baseName}")
+    logger.info("Making executable")
     binaryFile.setExecutable(true, true)
     val symlink = ktmDir.createChild("bin").apply { mkdir() }.createChild(unifiedName.substringAfterLast("."))
-    println("Linking as ${symlink.name}")
+    logger.info("Linking as ${symlink.name}")
     if (symlink.exists()) {
         symlink.delete()
     }
@@ -73,9 +73,8 @@ private fun JitPack.getRelatedFiles(name: String, version: String): List<String>
     logger.append("Fetching build log from JitPack...")
     val buildLog = fetchBuildLog(name, version)
     val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
-    logger.info("")
     logger.info("Found ${files.size} files:")
-    files.forEach(::println)
+    files.forEach(logger::info)
     return files.map { "${JitPack.jitPackUrl}/$it" }
 }
 
