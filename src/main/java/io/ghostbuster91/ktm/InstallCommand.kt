@@ -7,13 +7,14 @@ import java.io.File
 import java.nio.file.Files
 
 fun executeInstallCommand(name: String, version: String, jitPack: JitPack, getHomeDir: GetHomeDir) {
+    val simplifiedVersion = version.take(10)
     val ktmDir = getHomeDir().createChild(".ktm")
     val unifiedName = name.replace("/", ".")
-    val libraryDir = ktmDir.getLibraryDir(unifiedName, version)
+    val libraryDir = ktmDir.getLibraryDir(unifiedName, simplifiedVersion)
     if (!libraryDir.exists()) {
         libraryDir.mkdirs()
         libraryDir.deleteOnError {
-            installImpl(jitPack, name, version, libraryDir, ktmDir, unifiedName)
+            installImpl(jitPack, name, simplifiedVersion, libraryDir, ktmDir, unifiedName)
         }
     } else {
         logger.info("Library already installed in given version!")
@@ -21,26 +22,43 @@ fun executeInstallCommand(name: String, version: String, jitPack: JitPack, getHo
 }
 
 private fun installImpl(jitPack: JitPack, name: String, version: String, libraryDir: File, ktmDir: File, unifiedName: String) {
-    val artifacts = jitPack.getRelatedFiles(name, version)
-    require(artifacts.isNotEmpty(), { "Didn't find any artifacts!" })
-    logger.info("Found ${artifacts.size} files:")
-    artifacts.forEach(logger::info)
-    val tarFile = artifacts.firstOrNull { it.substringAfterLast(".") == "tar" }
-    require(tarFile != null, { "No tar archives found!" })
-    logger.info("Decompressing files from $tarFile")
-    val files = decompress(tarFile!!, libraryDir)
+    val artifacts = jitPack.getBuildArtifacts(name, version)
+    val tarFile = artifacts.findArchive()
+    val binaryFile = tarFile.extractBinaryFile(libraryDir).markAsExecutable()
+    val symbolicLink = ktmDir.createChild("bin").apply { mkdir() }.createChild(unifiedName.substringAfterLast("."))
+    symbolicLink.linkTo(binaryFile)
+}
+
+private fun List<String>.findArchive(): String {
+    logger.info("Found $size files:")
+    forEach(logger::info)
+    val archive = firstOrNull { it.substringAfterLast(".") == "tar" }
+    require(archive != null, { "No tar archives found!" })
+    return archive!!
+}
+
+private fun String.extractBinaryFile(libraryDir: File): FileObject {
+    logger.info("Decompressing files from ${this}")
+    val files = decompress(this, libraryDir)
     logger.info("Looking for binary file...")
     val binaryFile = files.firstOrNull { it.name.extension.isEmpty() }
     require(binaryFile != null, { "No binary files found!" })
     logger.info("Found ${binaryFile!!.name.baseName}")
+    return binaryFile
+}
+
+private fun FileObject.markAsExecutable(): FileObject {
     logger.info("Making executable")
-    binaryFile.setExecutable(true, true)
-    val symlink = ktmDir.createChild("bin").apply { mkdir() }.createChild(unifiedName.substringAfterLast("."))
-    logger.info("Linking as ${symlink.name}")
-    if (symlink.exists()) {
-        symlink.delete()
+    setExecutable(true, true)
+    return this
+}
+
+private fun File.linkTo(fileObject: FileObject) {
+    logger.info("Linking as $name")
+    if (exists()) {
+        delete()
     }
-    Files.createSymbolicLink(symlink.toPath(), File(binaryFile.name.path).toPath())
+    Files.createSymbolicLink(toPath(), File(fileObject.name.path).toPath())
 }
 
 private fun File.deleteOnError(function: () -> Unit) {
@@ -66,10 +84,11 @@ private fun File.getLibraryDir(name: String, version: String) =
                 .createChild(name)
                 .createChild(version)
 
-private fun JitPack.getRelatedFiles(name: String, version: String): List<String> {
+private fun JitPack.getBuildArtifacts(name: String, version: String): List<String> {
     logger.append("Fetching build log from JitPack...")
     val buildLog = fetchBuildLog(name, version)
     val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
+    require(files.isNotEmpty(), { "Didn't find any artifacts!" })
     return files.map { getFileUrl(it) }
 }
 
