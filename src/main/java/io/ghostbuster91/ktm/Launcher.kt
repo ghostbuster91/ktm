@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import io.reactivex.Observable
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
+import java.net.URL
 import java.util.concurrent.TimeUnit
 
 class KTM : NoRunCliktCommand()
@@ -30,11 +31,36 @@ class Version : CliktCommand() {
     }
 }
 
+class Info : CliktCommand(){
+    private val name by argument()
+
+    override fun run() {
+        TermUi.echo(URL("https://jitpack.io/api/builds/$name").readText())
+    }
+}
+
+class Search : CliktCommand(){
+    private val query by argument()
+
+    override fun run() {
+        TermUi.echo(URL("https://jitpack.io/api/search?q=$query").readText())
+    }
+}
+
+class Details: CliktCommand(){
+    private val name by argument()
+    private val version by argument()
+
+    override fun run() {
+        TermUi.echo(URL("https://jitpack.io/api/builds/$name/$version").readText())
+    }
+}
+
 val logger: Logger = LineWrappingLogger()
 
 fun main(args: Array<String>) {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    KTM().subcommands(Install(), Version()).main(args)
+    KTM().subcommands(Install(), Version(), Info(), Search(), Details()).main(args)
 }
 
 fun createWaitingIndicator() = Observable.interval(100, TimeUnit.MILLISECONDS)
