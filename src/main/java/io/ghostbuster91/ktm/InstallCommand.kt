@@ -4,29 +4,24 @@ import org.apache.commons.vfs2.AllFileSelector
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.VFS
 import java.io.File
-import java.nio.file.Files
 
-fun executeInstallCommand(name: String, version: String, jitPack: JitPack, getHomeDir: GetHomeDir) {
-    val simplifiedVersion = version.take(10)
-    val ktmDir = getHomeDir().createChild(".ktm")
-    val unifiedName = name.replace("/", ".")
-    val libraryDir = ktmDir.getLibraryDir(unifiedName, simplifiedVersion)
+fun executeInstallCommand(identifier: Identifier, jitPack: JitPack, ktmDirectoryManager: KtmDirectoryManager) {
+    val libraryDir = ktmDirectoryManager.getLibraryDir(identifier)
     if (!libraryDir.exists()) {
         libraryDir.mkdirs()
         libraryDir.deleteOnError {
-            installImpl(jitPack, name, simplifiedVersion, libraryDir, ktmDir, unifiedName)
+            installImpl(jitPack, libraryDir, identifier, ktmDirectoryManager)
         }
     } else {
         logger.info("Library already installed in given version!")
     }
 }
 
-private fun installImpl(jitPack: JitPack, name: String, version: String, libraryDir: File, ktmDir: File, unifiedName: String) {
-    val artifacts = jitPack.getBuildArtifacts(name, version)
+private fun installImpl(jitPack: JitPack, libraryDir: File, identifier: Identifier, directoryManager: KtmDirectoryManager) {
+    val artifacts = jitPack.getBuildArtifacts(identifier)
     val tarFile = artifacts.findArchive()
     val binaryFile = tarFile.extractBinaryFile(libraryDir).markAsExecutable()
-    val symbolicLink = ktmDir.createChild("bin").apply { mkdir() }.createChild(unifiedName.substringAfterLast("."))
-    symbolicLink.linkTo(binaryFile)
+    directoryManager.linkToBinary(identifier, binaryFile)
 }
 
 private fun List<String>.findArchive(): String {
@@ -53,14 +48,6 @@ private fun FileObject.markAsExecutable(): FileObject {
     return this
 }
 
-private fun File.linkTo(fileObject: FileObject) {
-    logger.info("Linking as $name")
-    if (exists()) {
-        delete()
-    }
-    Files.createSymbolicLink(toPath(), File(fileObject.name.path).toPath())
-}
-
 private fun File.deleteOnError(function: () -> Unit) {
     try {
         function()
@@ -82,17 +69,10 @@ private fun decompress(url: String, out: File): List<FileObject> {
     return files!!.toList()
 }
 
-private fun File.getLibraryDir(name: String, version: String) =
-        createChild("modules")
-                .createChild(name)
-                .createChild(version)
-
-private fun JitPack.getBuildArtifacts(name: String, version: String): List<String> {
+private fun JitPack.getBuildArtifacts(identifier: Identifier): List<String> {
     logger.append("Fetching build log from JitPack...")
-    val buildLog = fetchBuildLog(name, version)
+    val buildLog = fetchBuildLog(identifier)
     val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
     require(files.isNotEmpty(), { "Didn't find any artifacts!" })
     return files.map { getFileUrl(it) }
 }
-
-private fun File.createChild(childName: String) = File(this, childName)

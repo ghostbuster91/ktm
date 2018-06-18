@@ -1,4 +1,6 @@
+import io.ghostbuster91.ktm.Identifier
 import io.ghostbuster91.ktm.JitPack
+import io.ghostbuster91.ktm.KtmDirectoryManager
 import io.ghostbuster91.ktm.executeInstallCommand
 import org.junit.Rule
 import org.junit.Test
@@ -15,7 +17,7 @@ class InstallCommandTest {
     @Test
     fun shouldThrowIllegalArgumentExceptionWhenNoArtifactsFound() {
         assertThrowMessage("Didn't find any artifacts!") {
-            executeInstallCommand("github.com/myOrg/myRepo", "1.1", DummyJitPack(""), { testFolderRuler.root })
+            executeInstallCommand(Identifier.parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(""), KtmDirectoryManager{ testFolderRuler.root })
         }
     }
 
@@ -27,7 +29,7 @@ class InstallCommandTest {
             some-file.ext
             """.trimIndent()
         assertThrowMessage("No tar archives found!") {
-            executeInstallCommand("github.com/myOrg/myRepo", "1.1", DummyJitPack(buildLog), { testFolderRuler.root })
+            executeInstallCommand(Identifier.parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager{ testFolderRuler.root })
         }
     }
 
@@ -39,7 +41,7 @@ class InstallCommandTest {
             ${javaClass.classLoader.getResource("sample-file.tar").path}
             """.trimIndent()
         assertThrowMessage("No binary files found!") {
-            executeInstallCommand("github.com/myOrg/myRepo", "1.1", DummyJitPack(buildLog), { testFolderRuler.root })
+            executeInstallCommand(Identifier.parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager{ testFolderRuler.root })
         }
     }
 
@@ -50,8 +52,8 @@ class InstallCommandTest {
             not-relevant
             ${javaClass.classLoader.getResource("sample-bin.tar").path}
             """.trimIndent()
-        executeInstallCommand("github.com/myOrg/myRepo", "1.1", DummyJitPack(buildLog), { testFolderRuler.root })
-        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/github.com.myOrg.myRepo/1.1/sample-bin")
+        executeInstallCommand(Identifier.parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager{ testFolderRuler.root })
+        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/github.com.myOrg:myRepo/1.1/sample-bin")
         assert(binaryFile.exists())
     }
 
@@ -62,16 +64,17 @@ class InstallCommandTest {
             not-relevant
             ${javaClass.classLoader.getResource("sample-bin.tar").path}
             """.trimIndent()
-        executeInstallCommand("github.com/myOrg/myRepo", "1.1", DummyJitPack(buildLog), { testFolderRuler.root })
+        executeInstallCommand(Identifier.parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager{ testFolderRuler.root })
         val symlink = File(testFolderRuler.root.absolutePath, ".ktm/bin/myRepo")
         assert(symlink.exists())
         assert(Files.isSymbolicLink(symlink.toPath()))
     }
 
     class DummyJitPack(val buildLog: String) : JitPack {
-        override fun fetchBuildLog(name: String, version: String): String {
+        override fun fetchBuildLog(identifier: Identifier): String {
             return buildLog
         }
+
         override fun getFileUrl(fileName: String) = fileName
     }
 }

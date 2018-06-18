@@ -5,23 +5,38 @@ import com.github.ajalt.clikt.core.NoRunCliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.convert
+import com.github.ajalt.clikt.parameters.arguments.validate
 import io.reactivex.Observable
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
+private val directoryManager = KtmDirectoryManager({ File(System.getProperty("user.home")) })
+
 class KTM : NoRunCliktCommand()
 
 class Install : CliktCommand() {
-    private val name by argument()
-    private val version by argument()
+    private val identifier by argument().convert { Identifier.parse(it) }
 
     override fun run() {
-        logger.info("Installing $name $version")
-        val homeDirProvider = { File(System.getProperty("user.home")) }
+        logger.info("Installing $identifier")
         val jitPack = JitPackImpl(createWaitingIndicator())
-        executeInstallCommand(name, version, jitPack, homeDirProvider)
+        executeInstallCommand(identifier, jitPack, directoryManager)
+        logger.info("Done")
+    }
+}
+
+class Use : CliktCommand() {
+    private val identifier by argument().convert { Identifier.parse(it) }.validate {
+        require(directoryManager.getLibraryDir(it).exists(), { "Library not found. Use \"ktm install $it\" to install it." })
+    }
+
+    override fun run() {
+        val binary = directoryManager.getBinary(identifier)
+        directoryManager.linkToBinary(identifier, binary)
+        logger.info("Done")
     }
 }
 
@@ -31,7 +46,7 @@ class Version : CliktCommand() {
     }
 }
 
-class Info : CliktCommand(){
+class Info : CliktCommand() {
     private val name by argument()
 
     override fun run() {
@@ -39,7 +54,7 @@ class Info : CliktCommand(){
     }
 }
 
-class Search : CliktCommand(){
+class Search : CliktCommand() {
     private val query by argument()
 
     override fun run() {
@@ -47,12 +62,11 @@ class Search : CliktCommand(){
     }
 }
 
-class Details: CliktCommand(){
-    private val name by argument()
-    private val version by argument()
+class Details : CliktCommand() {
+    private val identifier by argument().convert { Identifier.parse(it) }
 
     override fun run() {
-        TermUi.echo(URL("https://jitpack.io/api/builds/$name/$version").readText())
+        TermUi.echo(URL("https://jitpack.io/api/builds/${identifier.name}/${identifier.shortVersion}").readText())
     }
 }
 
@@ -60,7 +74,7 @@ val logger: Logger = LineWrappingLogger()
 
 fun main(args: Array<String>) {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    KTM().subcommands(Install(), Version(), Info(), Search(), Details()).main(args)
+    KTM().subcommands(Install(), Version(), Info(), Search(), Details(), Use()).main(args)
 }
 
 fun createWaitingIndicator() = Observable.interval(100, TimeUnit.MILLISECONDS)
