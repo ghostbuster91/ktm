@@ -61,5 +61,5 @@ public class Build {
         }
 
 }
-compileJava.dependsOn generateSources
+compileKotlin.dependsOn generateSources
 sourceSets.main.java.srcDirs += generateSources.outputs.files
