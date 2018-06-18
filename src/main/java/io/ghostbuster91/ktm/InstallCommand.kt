@@ -38,12 +38,12 @@ private fun List<String>.findArchive(): String {
 }
 
 private fun String.extractBinaryFile(libraryDir: File): FileObject {
-    logger.info("Decompressing files from ${this}")
+    logger.info("Found archive: ${this}")
     val files = decompress(this, libraryDir)
-    logger.info("Looking for binary file...")
+    logger.info("Looking for binary file")
     val binaryFile = files.firstOrNull { it.name.extension.isEmpty() }
     require(binaryFile != null, { "No binary files found!" })
-    logger.info("Found ${binaryFile!!.name.baseName}")
+    logger.info("Found: ${binaryFile!!.name.baseName}")
     return binaryFile
 }
 
@@ -72,7 +72,10 @@ private fun File.deleteOnError(function: () -> Unit) {
 
 private fun decompress(url: String, out: File): List<FileObject> {
     val manager = VFS.getManager()
+    logger.append("Downloading...")
+    val waiter = createWaitingIndicator().subscribe()
     val archive = manager.resolveFile("tar:$url")
+    waiter.dispose()
     val allFileSelector = AllFileSelector()
     manager.resolveFile(out.absolutePath).copyFrom(archive, allFileSelector)
     val files = manager.resolveFile(out.absolutePath).findFiles(allFileSelector)
