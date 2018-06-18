@@ -13,7 +13,7 @@ tar xf ktm.tar
 rm ktm.tar
 mv ktm 0.0.1
 cd ../..
-ln -s modules/ktm/0.0.1/ktm/ bin/ktm
+ln -s ~/.ktm/modules/ktm/0.0.1/ktm/ bin/ktm
 echo 'Past following line into .bashrc / .zshrc etc'
 echo 'PATH=$PATH:~/.ktm/bin'
 echo 'export $PATH'
