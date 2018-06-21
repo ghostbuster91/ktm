@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.convert
 import com.github.ajalt.clikt.parameters.arguments.validate
+import com.github.ajalt.clikt.parameters.options.versionOption
 import io.reactivex.Observable
 import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
@@ -15,7 +16,11 @@ import java.util.concurrent.TimeUnit
 
 private val directoryManager = KtmDirectoryManager({ File(System.getProperty("user.home")) })
 
-class KTM : NoRunCliktCommand()
+class KTM : NoRunCliktCommand() {
+    init {
+        versionOption(Build.getVersion())
+    }
+}
 
 class Install : CliktCommand() {
     private val identifier by argument().convert { Identifier.parse(it) }
@@ -30,19 +35,13 @@ class Install : CliktCommand() {
 
 class Use : CliktCommand() {
     private val identifier by argument().convert { Identifier.parse(it) }.validate {
-        require(directoryManager.getLibraryDir(it).exists(), { "Library not found. Use \"ktm install $it\" to install it." })
+        require(directoryManager.getLibraryDir(it).exists(), { "Library not found. Use \"ktm install $it\" to install it first." })
     }
 
     override fun run() {
         val binary = directoryManager.getBinary(identifier)
         directoryManager.linkToBinary(identifier, binary)
         logger.info("Done")
-    }
-}
-
-class Version : CliktCommand() {
-    override fun run() {
-        TermUi.echo(Build.getVersion())
     }
 }
 
@@ -74,7 +73,7 @@ val logger: Logger = LineWrappingLogger()
 
 fun main(args: Array<String>) {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    KTM().subcommands(Install(), Version(), Info(), Search(), Details(), Use()).main(args)
+    KTM().subcommands(Install(), Info(), Search(), Details(), Use()).main(args)
 }
 
 fun createWaitingIndicator() = Observable.interval(100, TimeUnit.MILLISECONDS)
