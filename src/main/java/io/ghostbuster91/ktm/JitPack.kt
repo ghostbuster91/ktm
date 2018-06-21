@@ -1,18 +1,19 @@
 package io.ghostbuster91.ktm
 
+import io.ghostbuster91.ktm.identifier.Identifier
 import io.reactivex.Observable
 import java.net.URL
 
 interface JitPack {
 
-    fun fetchBuildLog(identifier: Identifier): String
+    fun fetchBuildLog(identifier: Identifier.Parsed): String
 
     fun getFileUrl(fileName: String): String
 }
 
 class JitPackImpl(private val waitingIndicator: Observable<Long>) : JitPack {
 
-    override fun fetchBuildLog(identifier: Identifier): String {
+    override fun fetchBuildLog(identifier: Identifier.Parsed): String {
         val waiter = waitingIndicator.subscribe()
         return URL("$jitPackUrl/${identifier.groupId.replace(".", "/")}/${identifier.artifactId}/${identifier.shortVersion}/build.log").readText().also { waiter.dispose() }
     }
