@@ -14,7 +14,6 @@ class AliasIdentifierResolver(private val aliasController: AliasController) : Id
             val (name, version) = identifier.text.split(":")
             val (groupId, artifactId) = aliases[name]!!.split(":")
             Identifier.Parsed(groupId, artifactId, version)
-
         } else {
             identifier
         }
