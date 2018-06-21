@@ -19,7 +19,7 @@ class IdentifierResolverTest {
     @Test
     fun shouldCascadeFromAliasToSimple() {
         val aliasController = mock<AliasController>()
-        whenever(aliasController.getAliases()).thenReturn(listOf("bestToolEver" to "com.github.myOrg:myRepo:version"))
+        whenever(aliasController.getAlias(any())).thenReturn("com.github.myOrg:myRepo:version")
         val dispatcher = IdentifierSolverDispatcher(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver())
         val identifier = dispatcher.resolverIdentifier(Identifier.Unparsed("bestToolEver:version"))
         identifier.let {
@@ -46,5 +46,13 @@ class IdentifierResolverTest {
     fun throwExceptionIfCannotParseIdentifier() {
         val dispatcher = IdentifierSolverDispatcher(SimpleIdentifierResolver())
         dispatcher.resolverIdentifier(Identifier.Unparsed("com.github"))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun aliasResolverIdentifierShouldNotBreakIfNoAliasFound() {
+        val aliasController = mock<AliasController>()
+        whenever(aliasController.getAliases()).thenReturn(emptyList())
+        val dispatcher = IdentifierSolverDispatcher(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver())
+        dispatcher.resolverIdentifier(Identifier.Unparsed("bestToolEver:version"))
     }
 }

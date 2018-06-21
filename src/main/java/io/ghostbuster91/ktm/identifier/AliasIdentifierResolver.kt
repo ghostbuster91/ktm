@@ -6,14 +6,14 @@ import io.ghostbuster91.ktm.KtmDirectoryManager
 class AliasIdentifierResolver(private val aliasController: AliasController) : IdentifierSolverDispatcher.IdentifierResolver {
 
     override fun resolve(identifier: Identifier.Unparsed): Identifier {
-        val segmentsCount = identifier.text.split(":").size
-        return if (segmentsCount == 2) {
-            val aliases = aliasController.getAliases()
-                    .map { (first, second) -> first to second }
-                    .toMap()
-            val (name, version) = identifier.text.split(":")
-            val (groupId, artifactId) = aliases[name]!!.split(":")
-            Identifier.Parsed(groupId, artifactId, version)
+        val segments = identifier.text.split(":")
+        return if (segments.size == 2) {
+            val (name, version) = segments
+            aliasController.getAlias(name)
+                    ?.split(":")
+                    ?.let { (groupId, artifactId) ->
+                        Identifier.Parsed(groupId, artifactId, version)
+                    } ?: identifier
         } else {
             identifier
         }
@@ -23,7 +23,8 @@ class AliasIdentifierResolver(private val aliasController: AliasController) : Id
 interface AliasController {
     fun addAlias(alias: String, name: String)
 
-    fun getAliases(): List<Alias>
+    fun getAlias(name: String): String?
+    fun getAliases() : List<Alias>
 }
 
 class AliasFileController(private val ktmDirectoryManager: KtmDirectoryManager) : AliasController {
@@ -31,12 +32,16 @@ class AliasFileController(private val ktmDirectoryManager: KtmDirectoryManager) 
     override fun getAliases(): List<Alias> {
         return ktmDirectoryManager.getAliasFile()
                 .readLines()
-                .map { it.split(":") }
+                .map { it.split(" ") }
                 .map { (first, second) -> first to second }
     }
 
     override fun addAlias(alias: String, name: String) {
         ktmDirectoryManager.getAliasFile().writeText("$alias $name")
+    }
+
+    override fun getAlias(name: String): String? {
+        return getAliases().toMap()[name]
     }
 }
 
