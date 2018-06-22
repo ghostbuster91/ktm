@@ -21,7 +21,7 @@ typealias GetHomeDir = () -> File
 
 val logger: Logger = LineWrappingLogger()
 private val directoryManager = KtmDirectoryManager({ File(System.getProperty("user.home")) })
-private val aliasController = AliasFileController(directoryManager)
+private val aliasController = AliasFileRepository(directoryManager)
 private val identifierSolver = IdentifierSolverDispatcher(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver())
 
 fun main(args: Array<String>) {

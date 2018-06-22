@@ -3,13 +3,13 @@ package io.ghostbuster91.ktm.identifier
 import io.ghostbuster91.ktm.KtmDirectoryManager
 
 
-class AliasIdentifierResolver(private val aliasController: AliasController) : IdentifierSolverDispatcher.IdentifierResolver {
+class AliasIdentifierResolver(private val aliasRepository: AliasRepository) : IdentifierSolverDispatcher.IdentifierResolver {
 
     override fun resolve(identifier: Identifier.Unparsed): Identifier {
         val segments = identifier.text.split(":")
         return if (segments.size == 2) {
             val (name, version) = segments
-            aliasController.getAlias(name)
+            aliasRepository.getAlias(name)
                     ?.split(":")
                     ?.let { (groupId, artifactId) ->
                         Identifier.Parsed(groupId, artifactId, version)
@@ -20,14 +20,14 @@ class AliasIdentifierResolver(private val aliasController: AliasController) : Id
     }
 }
 
-interface AliasController {
+interface AliasRepository {
     fun addAlias(alias: String, name: String)
 
     fun getAlias(name: String): String?
     fun getAliases() : List<Alias>
 }
 
-class AliasFileController(private val ktmDirectoryManager: KtmDirectoryManager) : AliasController {
+class AliasFileRepository(private val ktmDirectoryManager: KtmDirectoryManager) : AliasRepository {
 
     override fun getAliases(): List<Alias> {
         return ktmDirectoryManager.getAliasFile()
