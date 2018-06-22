@@ -1,13 +1,13 @@
 package io.ghostbuster91.ktm.identifier
 
-class IdentifierSolverDispatcher(vararg identifierResolvers: IdentifierResolver) {
+import io.ghostbuster91.ktm.utils.foldUntil
 
-    private val resolvers: List<IdentifierResolver> = identifierResolvers.toList()
+class IdentifierSolverDispatcher(private val identifierResolvers: List<IdentifierResolver>) {
 
-    fun resolverIdentifier(identifier: Identifier): Identifier.Parsed {
-        val result = resolvers.foldUntil(identifier, { acc, resolver -> resolver.resolve(acc as Identifier.Unparsed) }, { acc -> acc is Identifier.Unparsed })
-        when (result) {
-            is Identifier.Parsed -> return result
+    fun resolverIdentifier(unparsed: Identifier): Identifier.Parsed {
+        val result = identifierResolvers.foldUntil(unparsed, { acc, resolver -> resolver.resolve(acc as Identifier.Unparsed) }, { acc -> acc is Identifier.Unparsed })
+        return when (result) {
+            is Identifier.Parsed -> result
             is Identifier.Unparsed -> throw IllegalArgumentException("Cannot resolver identifier: ${result.text}")
         }
     }
@@ -18,14 +18,3 @@ class IdentifierSolverDispatcher(vararg identifierResolvers: IdentifierResolver)
     }
 }
 
-
-private inline fun <T, R> Iterable<T>.foldUntil(initial: R, operation: (acc: R, T) -> R, until: (acc: R) -> Boolean): R {
-    var accumulator = initial
-    for (element in this) {
-        if (!until(accumulator)) {
-            break
-        }
-        accumulator = operation(accumulator, element)
-    }
-    return accumulator
-}

@@ -1,6 +1,7 @@
-import io.ghostbuster91.ktm.*
+package io.ghostbuster91.ktm
+
 import io.ghostbuster91.ktm.identifier.Identifier
-import io.ghostbuster91.ktm.identifier.SimpleIdentifierResolver
+import io.ghostbuster91.ktm.identifier.VersionedIdentifier
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -12,7 +13,7 @@ class InstallCommandTest {
     @JvmField
     @Rule
     val testFolderRuler = TemporaryFolder()
-    private val parse = { text: String -> SimpleIdentifierResolver().resolve(Identifier.Unparsed(text)) as Identifier.Parsed }
+    private val parse = { text: String -> text.split(":").let { (g, a, v) -> VersionedIdentifier.Parsed(Identifier.Parsed(g, a), v) } }
 
     @Test
     fun shouldThrowIllegalArgumentExceptionWhenNoArtifactsFound() {
@@ -71,7 +72,7 @@ class InstallCommandTest {
     }
 
     class DummyJitPack(val buildLog: String) : JitPack {
-        override fun fetchBuildLog(identifier: Identifier.Parsed): String {
+        override fun fetchBuildLog(identifier: VersionedIdentifier.Parsed): String {
             return buildLog
         }
 

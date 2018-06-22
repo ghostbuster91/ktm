@@ -1,12 +1,12 @@
 package io.ghostbuster91.ktm
 
-import io.ghostbuster91.ktm.identifier.Identifier
+import io.ghostbuster91.ktm.identifier.VersionedIdentifier
 import org.apache.commons.vfs2.AllFileSelector
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.VFS
 import java.io.File
 
-fun executeInstallCommand(identifier: Identifier.Parsed, jitPack: JitPack, ktmDirectoryManager: KtmDirectoryManager) {
+fun executeInstallCommand(identifier: VersionedIdentifier.Parsed, jitPack: JitPack, ktmDirectoryManager: KtmDirectoryManager) {
     val libraryDir = ktmDirectoryManager.getLibraryDir(identifier)
     if (!libraryDir.exists()) {
         libraryDir.mkdirs()
@@ -18,7 +18,7 @@ fun executeInstallCommand(identifier: Identifier.Parsed, jitPack: JitPack, ktmDi
     }
 }
 
-private fun installImpl(jitPack: JitPack, libraryDir: File, identifier: Identifier.Parsed, directoryManager: KtmDirectoryManager) {
+private fun installImpl(jitPack: JitPack, libraryDir: File, identifier: VersionedIdentifier.Parsed, directoryManager: KtmDirectoryManager) {
     val artifacts = jitPack.getBuildArtifacts(identifier)
     val tarFile = artifacts.findArchive()
     val binaryFile = tarFile.extractBinaryFile(libraryDir).markAsExecutable()
@@ -70,7 +70,7 @@ private fun decompress(url: String, out: File): List<FileObject> {
     return files!!.toList()
 }
 
-private fun JitPack.getBuildArtifacts(identifier: Identifier.Parsed): List<String> {
+private fun JitPack.getBuildArtifacts(identifier: VersionedIdentifier.Parsed): List<String> {
     logger.append("Fetching build log from JitPack...")
     val buildLog = fetchBuildLog(identifier)
     val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
