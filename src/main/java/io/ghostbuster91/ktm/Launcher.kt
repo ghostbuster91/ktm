@@ -9,10 +9,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.pair
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.ghostbuster91.ktm.identifier.*
 import io.reactivex.Observable
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -25,13 +25,14 @@ typealias GetHomeDir = () -> File
 val logger: Logger = LineWrappingLogger()
 private val jitPackApi = Retrofit.Builder()
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .addConverterFactory(MoshiConverterFactory.create())
+        .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().add(KotlinJsonAdapterFactory()).build()))
         .baseUrl("https://jitpack.io/api/")
         .build()
         .create(JitPackApi::class.java)
 private val directoryManager = KtmDirectoryManager({ File(System.getProperty("user.home")) })
 private val aliasController = AliasFileRepository(directoryManager)
-private val identifierSolver = VersionSolverDispatcher(listOf(LatestVersionFetchingIdentifierResolver(jitPackApi)), IdentifierSolverDispatcher(listOf(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver())))
+private val identifierSolver = VersionSolverDispatcher(listOf(LatestVersionFetchingIdentifierResolver(jitPackApi)),
+        IdentifierSolverDispatcher(listOf(SearchingIdentifierResolver(jitPackApi), AliasIdentifierResolver(aliasController), SimpleIdentifierResolver())))
 
 fun main(args: Array<String>) {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
