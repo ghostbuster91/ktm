@@ -32,16 +32,16 @@ class JitPackImpl(private val waitingIndicator: Observable<Long>) : JitPack {
 
 interface JitPackApi {
     //TODO: dynamic parsing
-    @GET("/builds/{groupId}/{artifactId}")
+    @GET("builds/{groupId}/{artifactId}")
     fun builds(@Path("groupId") groupId: String, @Path("artifactId") artifactId: String): Observable<String>
 
-    @GET("/search")
+    @GET("search")
     fun search(@Query("q") query: String): Observable<List<SearchResult>>
 
-    @GET("/builds/{groupId}/{artifactId}/{version}")
+    @GET("builds/{groupId}/{artifactId}/{version}")
     fun details(@Path("groupId") groupId: String, @Path("artifactId") artifactId: String, @Path("version") version: String): Observable<DetailsResults>
 
-    @GET("/builds/{groupId}/{artifactId}/latestOk")
+    @GET("builds/{groupId}/{artifactId}/latestOk")
     fun latestRelease(@Path("groupId") groupId: String, @Path("artifactId") artifactId: String): Observable<VersionResponse>
 
     data class VersionResponse(val version: String?)
