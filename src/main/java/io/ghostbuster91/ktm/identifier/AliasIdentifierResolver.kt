@@ -24,10 +24,15 @@ interface AliasRepository {
 class AliasFileRepository(private val ktmDirectoryManager: KtmDirectoryManager) : AliasRepository {
 
     override fun getAliases(): List<Alias> {
-        return ktmDirectoryManager.getAliasFile()
-                .readLines()
-                .map { it.split(" ") }
-                .map { (first, second) -> first to second }
+        val aliasFile = ktmDirectoryManager.getAliasFile()
+        return if (aliasFile.exists()) {
+            aliasFile
+                    .readLines()
+                    .map { it.split(" ") }
+                    .map { (first, second) -> first to second }
+        } else {
+            emptyList()
+        }
     }
 
     override fun addAlias(alias: String, name: String) {

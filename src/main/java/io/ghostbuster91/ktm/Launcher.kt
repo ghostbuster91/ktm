@@ -11,6 +11,11 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import io.ghostbuster91.ktm.identifier.*
 import io.reactivex.Observable
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 import java.net.URL
 import java.util.concurrent.TimeUnit
@@ -18,9 +23,15 @@ import java.util.concurrent.TimeUnit
 typealias GetHomeDir = () -> File
 
 val logger: Logger = LineWrappingLogger()
+private val jitPackApi = Retrofit.Builder()
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .addConverterFactory(MoshiConverterFactory.create())
+        .baseUrl("https://jitpack.io/api/")
+        .build()
+        .create(JitPackApi::class.java)
 private val directoryManager = KtmDirectoryManager({ File(System.getProperty("user.home")) })
 private val aliasController = AliasFileRepository(directoryManager)
-private val identifierSolver = VersionSolverDispatcher(emptyList(), IdentifierSolverDispatcher(listOf(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver())))
+private val identifierSolver = VersionSolverDispatcher(listOf(LatestVersionFetchingIdentifierResolver(jitPackApi)), IdentifierSolverDispatcher(listOf(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver())))
 
 fun main(args: Array<String>) {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
