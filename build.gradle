@@ -43,14 +43,6 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-scalars:2.3.0'
 }
 
-
-jar {
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-}
-
 task generateSources {
         def outputDir = file("$buildDir/generated-src")
         outputs.dir outputDir
