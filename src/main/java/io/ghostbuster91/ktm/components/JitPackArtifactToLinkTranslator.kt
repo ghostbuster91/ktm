@@ -4,9 +4,10 @@ import io.ghostbuster91.ktm.ArtifactToLinkTranslator
 import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.logger
 import io.reactivex.Observable
-import java.net.URL
+import retrofit2.http.GET
+import retrofit2.http.Path
 
-class JitPackArtifactToLinkTranslator(private val waitingIndicator: Observable<out Any>) : ArtifactToLinkTranslator {
+class JitPackArtifactToLinkTranslator(private val buildLogApi: (groupId: String, artifactId: String, version: String) -> String) : ArtifactToLinkTranslator {
 
     override fun getDownloadLink(identifier: Identifier.Parsed): String {
         logger.append("Fetching build log from JitPack...")
@@ -26,8 +27,7 @@ class JitPackArtifactToLinkTranslator(private val waitingIndicator: Observable<o
     }
 
     private fun fetchBuildLog(identifier: Identifier.Parsed): String {
-        val waiter = waitingIndicator.subscribe()
-        return URL("$jitPackUrl/${identifier.groupId.replace(".", "/")}/${identifier.artifactId}/${identifier.shortVersion}/build.log").readText().also { waiter.dispose() }
+        return buildLogApi(identifier.groupId.replace(".", "/"), identifier.artifactId, identifier.shortVersion)
     }
 
     private fun getFileUrl(fileName: String): String {
@@ -37,4 +37,9 @@ class JitPackArtifactToLinkTranslator(private val waitingIndicator: Observable<o
     companion object {
         private const val jitPackUrl = "https://jitpack.io"
     }
+}
+
+interface BuildLogApi {
+    @GET("{groupId}/{artifactId}/{version}/build.log")
+    fun getBuildLog(@Path("groupId", encoded = true) groupId: String, @Path("artifactId") artifactId: String, @Path("version") version: String): Observable<String>
 }

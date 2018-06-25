@@ -12,10 +12,7 @@ import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.ghostbuster91.ktm.components.JitPackArtifactToLinkTranslator
-import io.ghostbuster91.ktm.components.KtmDirectoryManager
-import io.ghostbuster91.ktm.components.LineWrappingLogger
-import io.ghostbuster91.ktm.components.TarFileDownloader
+import io.ghostbuster91.ktm.components.*
 import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
 import io.ghostbuster91.ktm.identifier.artifact.AliasArtifactResolver
@@ -29,6 +26,7 @@ import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.File
 import java.net.URL
 import java.util.concurrent.TimeUnit
@@ -36,18 +34,25 @@ import java.util.concurrent.TimeUnit
 typealias GetHomeDir = () -> File
 
 val logger: Logger = LineWrappingLogger()
-private val jitPackApi = Retrofit.Builder()
+private val retrofit = Retrofit.Builder()
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .addConverterFactory(ScalarsConverterFactory.create())
         .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().add(KotlinJsonAdapterFactory()).build()))
-        .baseUrl("https://jitpack.io/api/")
+        .baseUrl("https://jitpack.io/")
         .build()
-        .create(JitPackApi::class.java)
+private val jitPackApi = retrofit.create(JitPackApi::class.java)
+private val buildApi = retrofit.create(BuildLogApi::class.java)
 private val directoryManager = KtmDirectoryManager({ File(System.getProperty("user.home")) })
 private val aliasRepository = AliasFileRepository(directoryManager)
 private val identifierSolver = IdentifierResolver(
-        artifactResolvers = listOf(AliasArtifactResolver(aliasRepository), SearchingArtifactResolver(jitPackApi), SimpleArtifactResolver()),
-        versionResolvers = listOf(LatestVersionFetchingIdentifierResolver(jitPackApi), SimpleVersionResolver(), DefaultVersionResolver()))
-private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator(createWaitingIndicator())
+        artifactResolvers = listOf(AliasArtifactResolver(aliasRepository), SearchingArtifactResolver({
+            { jitPackApi.search(it).blockingFirst() }.withWaiter()
+        }), SimpleArtifactResolver()),
+        versionResolvers = listOf(LatestVersionFetchingIdentifierResolver(
+                { g, a -> { jitPackApi.latestRelease(g, a).blockingFirst() }.withWaiter() }), SimpleVersionResolver(), DefaultVersionResolver()))
+private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator({ g, a, v ->
+    { buildApi.getBuildLog(g, a, v).blockingFirst() }.withWaiter()
+})
 private val tarFileDownloader = TarFileDownloader(createWaitingIndicator())
 
 fun main(args: Array<String>) {
@@ -126,6 +131,10 @@ private class Aliases : CliktCommand() {
     }
 }
 
+private fun <T> (() -> T).withWaiter(): T {
+    val waiter = createWaitingIndicator().subscribe()
+    return invoke().also { waiter.dispose() }
+}
 
 private fun createWaitingIndicator(): Observable<out Any> = Observable.interval(100, TimeUnit.MILLISECONDS)
         .doOnNext { logger.append(".") }

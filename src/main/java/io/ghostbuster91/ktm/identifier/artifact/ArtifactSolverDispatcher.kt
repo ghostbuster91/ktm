@@ -21,7 +21,9 @@ class ArtifactSolverDispatcher(private val artifactResolvers: List<ArtifactResol
             override fun toString() = "$groupId:$artifactId"
         }
 
-        data class Unparsed(val text: String) : Artifact()
+        data class Unparsed(val text: String) : Artifact(){
+            override fun toString() = text
+        }
     }
 }
 
