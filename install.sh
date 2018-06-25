@@ -4,7 +4,7 @@ VERSION="0.0.4"
 test ! -e ~/.ktm || (echo "~/.ktm exists!"; exit 1)
 mkdir -p ~/.ktm/modules/com.github.ghostbuster91/ktm/${VERSION}/ktm
 mkdir ~/.ktm/bin
-echo "ktm:com.ghostbuster91" >> ~/.ktm/aliases
+echo "ktm com.ghostbuster91:ktm" >> ~/.ktm/aliases
 cd ~/.ktm/modules/com.github.ghostbuster91/ktm
 wget https://github.com/ghostbuster91/ktm/releases/download/${VERSION}/ktm.tar
 tar xf ktm.tar
