@@ -22,7 +22,9 @@ import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
 import io.ghostbuster91.ktm.identifier.version.DefaultVersionResolver
 import io.ghostbuster91.ktm.identifier.version.LatestVersionFetchingIdentifierResolver
 import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
+import io.ghostbuster91.ktm.utils.NullPrintStream
 import io.reactivex.Observable
+import jline.internal.Log
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -56,6 +58,7 @@ private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator({ 
 private val tarFileDownloader = TarFileDownloader(createWaitingIndicator())
 
 fun main(args: Array<String>) {
+    Log.setOutput(NullPrintStream())
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
     KTM().subcommands(Install(), Aliases(), Info(), Search(), Details(), Use()).main(args)
 }
