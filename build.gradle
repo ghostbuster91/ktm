@@ -14,7 +14,7 @@ apply plugin: 'maven'
 apply plugin: 'application'
 
 group 'io.ghostbuster91'
-version '0.0.4'
+version '0.0.5'
 
 sourceCompatibility = 1.8
 
