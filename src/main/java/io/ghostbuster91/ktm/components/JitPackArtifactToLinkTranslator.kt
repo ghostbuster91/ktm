@@ -8,9 +8,9 @@ import java.net.URL
 
 class JitPackArtifactToLinkTranslator(private val waitingIndicator: Observable<out Any>) : ArtifactToLinkTranslator {
 
-    override fun getDownloadLink(Identifier: Identifier.Parsed): String {
+    override fun getDownloadLink(identifier: Identifier.Parsed): String {
         logger.append("Fetching build log from JitPack...")
-        val buildLog = fetchBuildLog(Identifier)
+        val buildLog = fetchBuildLog(identifier)
         val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
         require(files.isNotEmpty(), { "Didn't find any artifacts!" })
         val filesFQN = files.map { getFileUrl(it) }
