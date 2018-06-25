@@ -25,6 +25,7 @@ import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
 import io.ghostbuster91.ktm.utils.NullPrintStream
 import io.reactivex.Observable
 import jline.internal.Log
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -37,6 +38,7 @@ typealias GetHomeDir = () -> File
 
 val logger: Logger = LineWrappingLogger()
 private val retrofit = Retrofit.Builder()
+        .client(OkHttpClient.Builder().readTimeout(5, TimeUnit.MINUTES).build())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .addConverterFactory(ScalarsConverterFactory.create())
         .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().add(KotlinJsonAdapterFactory()).build()))
