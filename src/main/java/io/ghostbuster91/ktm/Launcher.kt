@@ -50,8 +50,8 @@ private val identifierSolver = IdentifierResolver(
         artifactResolvers = listOf(AliasArtifactResolver(aliasRepository), SearchingArtifactResolver({
             { jitPackApi.search(it).blockingFirst() }.withWaiter()
         }), SimpleArtifactResolver()),
-        versionResolvers = listOf(LatestVersionFetchingIdentifierResolver(
-                { g, a -> { jitPackApi.latestRelease(g, a).blockingFirst() }.withWaiter() }), SimpleVersionResolver(), DefaultVersionResolver()))
+        versionResolvers = listOf(SimpleVersionResolver(), LatestVersionFetchingIdentifierResolver(
+                { g, a -> { jitPackApi.latestRelease(g, a).blockingFirst() }.withWaiter() }), DefaultVersionResolver()))
 private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator({ g, a, v ->
     { buildApi.getBuildLog(g, a, v).blockingFirst() }.withWaiter()
 })
