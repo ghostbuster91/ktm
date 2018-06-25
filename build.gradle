@@ -29,6 +29,8 @@ dependencies {
     compile 'com.github.ajalt:clikt:1.2.0'
     compile 'jline:jline:2.14.2'
     compile "com.squareup.retrofit2:retrofit:2.3.0"
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    compile 'com.squareup.retrofit2:converter-moshi:2.3.0'
     compile "com.squareup.okhttp3:logging-interceptor:3.9.1"
     compile "io.reactivex.rxjava2:rxjava:2.1.7"
     compile "io.reactivex.rxjava2:rxkotlin:2.2.0"
@@ -37,6 +39,8 @@ dependencies {
     compile 'org.apache.commons:commons-compress:1.14'
     compile group: 'org.apache.commons', name: 'commons-vfs2', version: '2.2'
     compile 'commons-httpclient:commons-httpclient:3.1'
+    compile 'com.squareup.moshi:moshi-kotlin:1.6.0'
+    compile 'com.squareup.retrofit2:converter-scalars:2.3.0'
 }
 
 
