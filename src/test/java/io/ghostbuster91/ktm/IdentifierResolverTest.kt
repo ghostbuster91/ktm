@@ -2,6 +2,11 @@ package io.ghostbuster91.ktm
 
 import com.nhaarman.mockito_kotlin.*
 import io.ghostbuster91.ktm.identifier.*
+import io.ghostbuster91.ktm.identifier.artifact.AliasIdentifierResolver
+import io.ghostbuster91.ktm.identifier.artifact.AliasRepository
+import io.ghostbuster91.ktm.identifier.artifact.SimpleIdentifierResolver
+import io.ghostbuster91.ktm.identifier.version.DefaultVersionResolver
+import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -10,7 +15,7 @@ class IdentifierResolverTest {
     @Test
     fun shouldDispatchSolvingToSimpleSolver() {
         val dispatcher = IdentifierSolverDispatcher(listOf(SimpleIdentifierResolver()))
-        val identifier = dispatcher.resolverIdentifier(Identifier.Unparsed("com.github.myOrg:myRepo"))
+        val identifier = dispatcher.resolve(Identifier.Unparsed("com.github.myOrg:myRepo"))
         identifier.let {
             assertEquals("com.github.myOrg", it.groupId)
             assertEquals("myRepo", it.artifactId)
@@ -22,7 +27,7 @@ class IdentifierResolverTest {
         val aliasController = mock<AliasRepository>()
         whenever(aliasController.getAlias(any())).thenReturn("com.github.myOrg:myRepo")
         val dispatcher = IdentifierSolverDispatcher(listOf(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver()))
-        val identifier = dispatcher.resolverIdentifier(Identifier.Unparsed("bestToolEver:version"))
+        val identifier = dispatcher.resolve(Identifier.Unparsed("bestToolEver:version"))
         identifier.let {
             assertEquals("com.github.myOrg", it.groupId)
             assertEquals("myRepo", it.artifactId)
@@ -33,7 +38,7 @@ class IdentifierResolverTest {
     fun shouldSkipFurtherSolvingWhenAlreadyParsed() {
         val identifierSolver = mock<IdentifierSolverDispatcher.IdentifierResolver>()
         val dispatcher = IdentifierSolverDispatcher(listOf(identifierSolver))
-        val identifier = dispatcher.resolverIdentifier(Identifier.Parsed("com.github.myOrg", "myRepo"))
+        val identifier = dispatcher.resolve(Identifier.Parsed("com.github.myOrg", "myRepo"))
         verify(identifierSolver, never()).resolve(any())
         identifier.let {
             assertEquals("com.github.myOrg", it.groupId)
@@ -44,7 +49,7 @@ class IdentifierResolverTest {
     @Test(expected = IllegalArgumentException::class)
     fun throwExceptionIfCannotParseIdentifier() {
         val dispatcher = IdentifierSolverDispatcher(listOf(SimpleIdentifierResolver()))
-        dispatcher.resolverIdentifier(Identifier.Unparsed("com.github"))
+        dispatcher.resolve(Identifier.Unparsed("com.github"))
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -52,14 +57,13 @@ class IdentifierResolverTest {
         val aliasController = mock<AliasRepository>()
         whenever(aliasController.getAliases()).thenReturn(emptyList())
         val dispatcher = IdentifierSolverDispatcher(listOf(AliasIdentifierResolver(aliasController), SimpleIdentifierResolver()))
-        dispatcher.resolverIdentifier(Identifier.Unparsed("bestToolEver"))
+        dispatcher.resolve(Identifier.Unparsed("bestToolEver"))
     }
 
     @Test
     fun whenVersionProvidedJustParseIt() {
-        val identifierSolverDispatcher = IdentifierSolverDispatcher(listOf(SimpleIdentifierResolver()))
-        val versionSolverDispatcher = VersionSolverDispatcher(listOf(SimpleVersionResolver()), identifierSolverDispatcher)
-        val identifier = versionSolverDispatcher.resolverVersionedIdentifier(Identifier.Unparsed("com.github.myOrg:myRepo"), "version")
+        val versionSolverDispatcher = VersionSolverDispatcher(listOf(SimpleVersionResolver()))
+        val identifier = versionSolverDispatcher.resolve(VersionedIdentifier.Unparsed(Identifier.Parsed("com.github.myOrg", "myRepo"), "version"))
         identifier.let {
             assertEquals("com.github.myOrg", it.groupId)
             assertEquals("myRepo", it.artifactId)
@@ -69,9 +73,8 @@ class IdentifierResolverTest {
 
     @Test
     fun whenVersionNotProvidedShouldUseDefault() {
-        val identifierSolverDispatcher = IdentifierSolverDispatcher(listOf(SimpleIdentifierResolver()))
-        val versionSolverDispatcher = VersionSolverDispatcher(listOf(DefaultVersionResolver(), SimpleVersionResolver()), identifierSolverDispatcher)
-        val identifier = versionSolverDispatcher.resolverVersionedIdentifier(Identifier.Unparsed("com.github.myOrg:myRepo"), null)
+        val versionSolverDispatcher = VersionSolverDispatcher(listOf(DefaultVersionResolver(), SimpleVersionResolver()))
+        val identifier = versionSolverDispatcher.resolve(VersionedIdentifier.Unparsed(Identifier.Parsed("com.github.myOrg","myRepo"), null))
         identifier.let {
             assertEquals("com.github.myOrg", it.groupId)
             assertEquals("myRepo", it.artifactId)

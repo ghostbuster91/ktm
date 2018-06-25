@@ -1,4 +1,7 @@
-package io.ghostbuster91.ktm.identifier
+package io.ghostbuster91.ktm.identifier.artifact
+
+import io.ghostbuster91.ktm.identifier.Identifier
+import io.ghostbuster91.ktm.identifier.IdentifierSolverDispatcher
 
 class SimpleIdentifierResolver : IdentifierSolverDispatcher.IdentifierResolver {
     override fun resolve(identifier: Identifier.Unparsed): Identifier {

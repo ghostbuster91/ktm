@@ -1,5 +1,6 @@
-package io.ghostbuster91.ktm
+package io.ghostbuster91.ktm.components
 
+import io.ghostbuster91.ktm.Logger
 import jline.TerminalFactory
 
 class LineWrappingLogger : Logger {

@@ -1,6 +1,9 @@
-package io.ghostbuster91.ktm.identifier
+package io.ghostbuster91.ktm.identifier.version
 
 import io.ghostbuster91.ktm.JitPackApi
+import io.ghostbuster91.ktm.identifier.VersionSolverDispatcher
+import io.ghostbuster91.ktm.identifier.VersionedIdentifier
+
 
 class LatestVersionFetchingIdentifierResolver(private val jitPackApi: JitPackApi) : VersionSolverDispatcher.VersionResolver {
 

@@ -1,6 +1,8 @@
-package io.ghostbuster91.ktm.identifier
+package io.ghostbuster91.ktm.identifier.artifact
 
-import io.ghostbuster91.ktm.KtmDirectoryManager
+import io.ghostbuster91.ktm.components.KtmDirectoryManager
+import io.ghostbuster91.ktm.identifier.Identifier
+import io.ghostbuster91.ktm.identifier.IdentifierSolverDispatcher
 
 
 class AliasIdentifierResolver(private val aliasRepository: AliasRepository) : IdentifierSolverDispatcher.IdentifierResolver {

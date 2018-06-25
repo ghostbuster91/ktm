@@ -1,6 +1,8 @@
-package io.ghostbuster91.ktm
+package io.ghostbuster91.ktm.components
 
+import io.ghostbuster91.ktm.GetHomeDir
 import io.ghostbuster91.ktm.identifier.VersionedIdentifier
+import io.ghostbuster91.ktm.logger
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileSelectInfo
 import org.apache.commons.vfs2.FileSelector
@@ -14,7 +16,8 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
     fun getLibraryDir(identifier: VersionedIdentifier.Parsed): File {
         return ktmDir
                 .createChild("modules")
-                .createChild("${identifier.groupId}:${identifier.artifactId}")
+                .createChild(identifier.groupId)
+                .createChild(identifier.artifactId)
                 .createChild(identifier.shortVersion)
     }
 

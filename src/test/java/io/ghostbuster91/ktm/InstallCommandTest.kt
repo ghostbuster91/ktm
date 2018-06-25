@@ -1,7 +1,14 @@
 package io.ghostbuster91.ktm
 
+import io.ghostbuster91.ktm.components.KtmDirectoryManager
+import io.ghostbuster91.ktm.components.TarFileDownloader
 import io.ghostbuster91.ktm.identifier.Identifier
+import io.ghostbuster91.ktm.identifier.IdentifierSolverDispatcher
+import io.ghostbuster91.ktm.identifier.VersionSolverDispatcher
 import io.ghostbuster91.ktm.identifier.VersionedIdentifier
+import io.ghostbuster91.ktm.identifier.artifact.SimpleIdentifierResolver
+import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
+import io.reactivex.Observable
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -13,70 +20,37 @@ class InstallCommandTest {
     @JvmField
     @Rule
     val testFolderRuler = TemporaryFolder()
-    private val parse = { text: String -> text.split(":").let { (g, a, v) -> VersionedIdentifier.Parsed(Identifier.Parsed(g, a), v) } }
-
-    @Test
-    fun shouldThrowIllegalArgumentExceptionWhenNoArtifactsFound() {
-        assertThrowMessage("Didn't find any artifacts!") {
-            executeInstallCommand(parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(""), KtmDirectoryManager { testFolderRuler.root })
-        }
-    }
-
-    @Test
-    fun shouldThrowIfCollectionDoesntContainAnyTarArchive() {
-        val buildLog = """
-            Files:
-            not-relevant
-            some-file.ext
-            """.trimIndent()
-        assertThrowMessage("No tar archives found!") {
-            executeInstallCommand(parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager { testFolderRuler.root })
-        }
-    }
 
     @Test()
     fun shouldThrowExceptionIfArchiveDoesNotContainAnyBinaryFile() {
-        val buildLog = """
-            Files:
-            not-relevant
-            ${javaClass.classLoader.getResource("sample-file.tar").path}
-            """.trimIndent()
         assertThrowMessage("No binary files found!") {
-            executeInstallCommand(parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager { testFolderRuler.root })
+            install({ javaClass.classLoader.getResource("sample-file.tar").path })
         }
     }
 
     @Test
     fun shouldDecompressBinaryFile() {
-        val buildLog = """
-            Files:
-            not-relevant
-            ${javaClass.classLoader.getResource("sample-bin.tar").path}
-            """.trimIndent()
-        executeInstallCommand(parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager { testFolderRuler.root })
-        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/github.com.myOrg:myRepo/1.1/sample-bin")
+        install({ javaClass.classLoader.getResource("sample-bin.tar").path })
+        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/com.github.myOrg/myRepo/1.1/sample-bin")
         assert(binaryFile.exists())
     }
 
     @Test
     fun shouldCreateSymlinkToBinary() {
-        val buildLog = """
-            Files:
-            not-relevant
-            ${javaClass.classLoader.getResource("sample-bin.tar").path}
-            """.trimIndent()
-        executeInstallCommand(parse("github.com.myOrg:myRepo:1.1"), DummyJitPack(buildLog), KtmDirectoryManager { testFolderRuler.root })
+        install({ javaClass.classLoader.getResource("sample-bin.tar").path })
         val symlink = File(testFolderRuler.root.absolutePath, ".ktm/bin/myRepo")
         assert(symlink.exists())
         assert(Files.isSymbolicLink(symlink.toPath()))
     }
 
-    class DummyJitPack(val buildLog: String) : JitPack {
-        override fun fetchBuildLog(identifier: VersionedIdentifier.Parsed): String {
-            return buildLog
-        }
-
-        override fun getFileUrl(fileName: String) = fileName
+    private fun install(artifactToLink: (VersionedIdentifier.Parsed) -> String) {
+        installer(
+                IdentifierSolverDispatcher(listOf(SimpleIdentifierResolver())),
+                VersionSolverDispatcher(listOf(SimpleVersionResolver())),
+                KtmDirectoryManager { testFolderRuler.root },
+                ArtifactToLinkTranslator(f = artifactToLink),
+                TarFileDownloader(Observable.never())
+        ).invoke(Identifier.Unparsed("com.github.myOrg:myRepo"), "1.1")
     }
 }
 
@@ -84,7 +58,7 @@ class InstallCommandTest {
 fun assertThrowMessage(message: String, f: () -> Unit) = assertThrow(f, { this.message == message }) {
     """Incorrect exception message:
        expecting: "$message"
-       but was: "${it.message}" """
+       but was: "${it.message}" """ + it.printStackTrace()
 }
 
 fun assertThrow(f: () -> Unit, matcher: Exception.() -> Boolean, message: (Exception) -> String) {
