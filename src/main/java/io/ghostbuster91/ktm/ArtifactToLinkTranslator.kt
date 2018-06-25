@@ -1,15 +1,15 @@
 package io.ghostbuster91.ktm
 
-import io.ghostbuster91.ktm.identifier.VersionedIdentifier
+import io.ghostbuster91.ktm.identifier.Identifier
 
 interface ArtifactToLinkTranslator {
-    fun getDownloadLink(versionedIdentifier: VersionedIdentifier.Parsed): String
+    fun getDownloadLink(versionedIdentifier: Identifier.Parsed): String
 
 
     companion object {
-        operator fun invoke(f: (VersionedIdentifier.Parsed) -> String) =
+        operator fun invoke(f: (Identifier.Parsed) -> String) =
                 object : ArtifactToLinkTranslator {
-                    override fun getDownloadLink(versionedIdentifier: VersionedIdentifier.Parsed) = f(versionedIdentifier)
+                    override fun getDownloadLink(versionedIdentifier: Identifier.Parsed) = f(versionedIdentifier)
                 }
     }
 }

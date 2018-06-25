@@ -1,16 +1,16 @@
 package io.ghostbuster91.ktm.components
 
 import io.ghostbuster91.ktm.ArtifactToLinkTranslator
-import io.ghostbuster91.ktm.identifier.VersionedIdentifier
+import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.logger
 import io.reactivex.Observable
 import java.net.URL
 
 class JitPackArtifactToLinkTranslator(private val waitingIndicator: Observable<out Any>) : ArtifactToLinkTranslator {
 
-    override fun getDownloadLink(versionedIdentifier: VersionedIdentifier.Parsed): String {
+    override fun getDownloadLink(Identifier: Identifier.Parsed): String {
         logger.append("Fetching build log from JitPack...")
-        val buildLog = fetchBuildLog(versionedIdentifier)
+        val buildLog = fetchBuildLog(Identifier)
         val files = buildLog.substringAfterLast("Files:").split("\n").filter { it.isNotBlank() }.drop(1)
         require(files.isNotEmpty(), { "Didn't find any artifacts!" })
         val filesFQN = files.map { getFileUrl(it) }
@@ -25,7 +25,7 @@ class JitPackArtifactToLinkTranslator(private val waitingIndicator: Observable<o
         return archive!!
     }
 
-    private fun fetchBuildLog(identifier: VersionedIdentifier.Parsed): String {
+    private fun fetchBuildLog(identifier: Identifier.Parsed): String {
         val waiter = waitingIndicator.subscribe()
         return URL("$jitPackUrl/${identifier.groupId.replace(".", "/")}/${identifier.artifactId}/${identifier.shortVersion}/build.log").readText().also { waiter.dispose() }
     }

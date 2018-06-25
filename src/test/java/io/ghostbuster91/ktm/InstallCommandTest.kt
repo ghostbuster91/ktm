@@ -3,10 +3,10 @@ package io.ghostbuster91.ktm
 import io.ghostbuster91.ktm.components.KtmDirectoryManager
 import io.ghostbuster91.ktm.components.TarFileDownloader
 import io.ghostbuster91.ktm.identifier.Identifier
-import io.ghostbuster91.ktm.identifier.IdentifierSolverDispatcher
-import io.ghostbuster91.ktm.identifier.VersionSolverDispatcher
-import io.ghostbuster91.ktm.identifier.VersionedIdentifier
-import io.ghostbuster91.ktm.identifier.artifact.SimpleIdentifierResolver
+import io.ghostbuster91.ktm.identifier.IdentifierResolver
+import io.ghostbuster91.ktm.identifier.artifact.ArtifactSolverDispatcher
+import io.ghostbuster91.ktm.identifier.version.VersionSolverDispatcher
+import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
 import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
 import io.reactivex.Observable
 import org.junit.Rule
@@ -43,10 +43,9 @@ class InstallCommandTest {
         assert(Files.isSymbolicLink(symlink.toPath()))
     }
 
-    private fun install(artifactToLink: (VersionedIdentifier.Parsed) -> String) {
+    private fun install(artifactToLink: (Identifier.Parsed) -> String) {
         installer(
-                IdentifierSolverDispatcher(listOf(SimpleIdentifierResolver())),
-                VersionSolverDispatcher(listOf(SimpleVersionResolver())),
+                IdentifierResolver(listOf(SimpleArtifactResolver()),listOf(SimpleVersionResolver())),
                 KtmDirectoryManager { testFolderRuler.root },
                 ArtifactToLinkTranslator(f = artifactToLink),
                 TarFileDownloader(Observable.never())

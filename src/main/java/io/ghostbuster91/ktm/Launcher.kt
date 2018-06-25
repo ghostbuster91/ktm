@@ -17,13 +17,11 @@ import io.ghostbuster91.ktm.components.KtmDirectoryManager
 import io.ghostbuster91.ktm.components.LineWrappingLogger
 import io.ghostbuster91.ktm.components.TarFileDownloader
 import io.ghostbuster91.ktm.identifier.Identifier
-import io.ghostbuster91.ktm.identifier.IdentifierSolverDispatcher
-import io.ghostbuster91.ktm.identifier.VersionSolverDispatcher
-import io.ghostbuster91.ktm.identifier.VersionedIdentifier
+import io.ghostbuster91.ktm.identifier.IdentifierResolver
+import io.ghostbuster91.ktm.identifier.artifact.AliasArtifactResolver
 import io.ghostbuster91.ktm.identifier.artifact.AliasFileRepository
-import io.ghostbuster91.ktm.identifier.artifact.AliasIdentifierResolver
-import io.ghostbuster91.ktm.identifier.artifact.SearchingIdentifierResolver
-import io.ghostbuster91.ktm.identifier.artifact.SimpleIdentifierResolver
+import io.ghostbuster91.ktm.identifier.artifact.SearchingArtifactResolver
+import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
 import io.ghostbuster91.ktm.identifier.version.DefaultVersionResolver
 import io.ghostbuster91.ktm.identifier.version.LatestVersionFetchingIdentifierResolver
 import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
@@ -46,8 +44,9 @@ private val jitPackApi = Retrofit.Builder()
         .create(JitPackApi::class.java)
 private val directoryManager = KtmDirectoryManager({ File(System.getProperty("user.home")) })
 private val aliasRepository = AliasFileRepository(directoryManager)
-private val identifierSolver = IdentifierSolverDispatcher(listOf(AliasIdentifierResolver(aliasRepository), SearchingIdentifierResolver(jitPackApi), SimpleIdentifierResolver()))
-private val versionSolver = VersionSolverDispatcher(listOf(LatestVersionFetchingIdentifierResolver(jitPackApi), SimpleVersionResolver(), DefaultVersionResolver()))
+private val identifierSolver = IdentifierResolver(
+        artifactResolvers = listOf(AliasArtifactResolver(aliasRepository), SearchingArtifactResolver(jitPackApi), SimpleArtifactResolver()),
+        versionResolvers = listOf(LatestVersionFetchingIdentifierResolver(jitPackApi), SimpleVersionResolver(), DefaultVersionResolver()))
 private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator(createWaitingIndicator())
 private val tarFileDownloader = TarFileDownloader(createWaitingIndicator())
 
@@ -68,7 +67,7 @@ private class Install : CliktCommand() {
 
     override fun run() {
         logger.info("Installing $identifier")
-        installer(identifierSolver, versionSolver, directoryManager, jitPackArtifactToLinkTranslator, tarFileDownloader)(identifier, version)
+        installer(identifierSolver, directoryManager, jitPackArtifactToLinkTranslator, tarFileDownloader)(identifier, version)
         logger.info("Done")
     }
 }
@@ -79,9 +78,7 @@ private class Use : CliktCommand() {
 
     override fun run() {
         val parsed = Identifier.Unparsed(identifier)
-                .let(identifierSolver::resolve)
-                .let { VersionedIdentifier.Unparsed(it, version) }
-                .let(versionSolver::resolve)
+                .let { identifierSolver.resolve(it, version) }
         require(directoryManager.getLibraryDir(parsed).exists(), { "Library not found. Use \"ktm install $parsed\" to install it first." })
         val binary = directoryManager.getBinary(parsed)
         directoryManager.linkToBinary(parsed, binary)
@@ -110,9 +107,7 @@ private class Details : CliktCommand() {
     private val version by option()
     override fun run() {
         val parsed = Identifier.Unparsed(identifier)
-                .let(identifierSolver::resolve)
-                .let { VersionedIdentifier.Unparsed(it, version) }
-                .let(versionSolver::resolve)
+                .let { identifierSolver.resolve(it, version) }
         TermUi.echo(URL("https://jitpack.io/api/builds/${parsed.name}/${parsed.shortVersion}").readText())
     }
 }

@@ -1,7 +1,7 @@
 package io.ghostbuster91.ktm.components
 
 import io.ghostbuster91.ktm.GetHomeDir
-import io.ghostbuster91.ktm.identifier.VersionedIdentifier
+import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.logger
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileSelectInfo
@@ -13,7 +13,7 @@ import java.nio.file.Files
 class KtmDirectoryManager(homeDir: GetHomeDir) {
     private val ktmDir = homeDir().createChild(".ktm")
 
-    fun getLibraryDir(identifier: VersionedIdentifier.Parsed): File {
+    fun getLibraryDir(identifier: Identifier.Parsed): File {
         return ktmDir
                 .createChild("modules")
                 .createChild(identifier.groupId)
@@ -21,7 +21,7 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
                 .createChild(identifier.shortVersion)
     }
 
-    fun linkToBinary(identifier: VersionedIdentifier.Parsed, binaryFile: FileObject) {
+    fun linkToBinary(identifier: Identifier.Parsed, binaryFile: FileObject) {
         val symbolicLink = ktmDir
                 .createChild("bin")
                 .apply { mkdir() }
@@ -30,7 +30,7 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
         symbolicLink.linkTo(binaryFile)
     }
 
-    fun getBinary(identifier: VersionedIdentifier.Parsed): FileObject {
+    fun getBinary(identifier: Identifier.Parsed): FileObject {
         val binaryFile = VFS.getManager().resolveFile(getLibraryDir(identifier).absolutePath).findFiles(ExecutableFilesSelector()).first()
         return binaryFile!!
     }

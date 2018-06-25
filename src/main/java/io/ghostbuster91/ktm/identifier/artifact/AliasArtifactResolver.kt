@@ -1,18 +1,15 @@
 package io.ghostbuster91.ktm.identifier.artifact
 
 import io.ghostbuster91.ktm.components.KtmDirectoryManager
-import io.ghostbuster91.ktm.identifier.Identifier
-import io.ghostbuster91.ktm.identifier.IdentifierSolverDispatcher
 
+class AliasArtifactResolver(private val aliasRepository: AliasRepository) : ArtifactSolverDispatcher.ArtifactResolver {
 
-class AliasIdentifierResolver(private val aliasRepository: AliasRepository) : IdentifierSolverDispatcher.IdentifierResolver {
-
-    override fun resolve(identifier: Identifier.Unparsed): Identifier {
-        return aliasRepository.getAlias(identifier.text)
+    override fun resolve(artifact: ArtifactSolverDispatcher.Artifact.Unparsed): ArtifactSolverDispatcher.Artifact {
+        return aliasRepository.getAlias(artifact.text)
                 ?.split(":")
                 ?.let { (groupId, artifactId) ->
-                    identifier.copy(text = "$groupId:$artifactId")
-                } ?: identifier
+                    artifact.copy(text = "$groupId:$artifactId")
+                } ?: artifact
     }
 }
 
