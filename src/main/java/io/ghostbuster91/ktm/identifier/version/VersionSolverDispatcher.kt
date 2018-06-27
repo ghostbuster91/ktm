@@ -7,7 +7,9 @@ class VersionSolverDispatcher(private val versionResolver: List<VersionResolver>
         val versionedIdentifier = versionResolver.foldUntil(identifier, { acc, resolver -> resolver.resolve(acc as VersionedIdentifier.Unparsed) }, { acc -> acc is VersionedIdentifier.Unparsed })
         when (versionedIdentifier) {
             is VersionedIdentifier.Parsed -> return versionedIdentifier
-            is VersionedIdentifier.Unparsed -> throw IllegalArgumentException("Cannot resolver version for: $versionedIdentifier")
+            is VersionedIdentifier.Unparsed -> throw VersionUnresolved("Cannot resolver version for: $versionedIdentifier" +
+                    "Note that automatic version pickup works only for artifacts which have remote tags.\n" +
+                    "For other artifacts provide version explicitly using --version option.")
         }
     }
 
@@ -23,8 +25,10 @@ class VersionSolverDispatcher(private val versionResolver: List<VersionResolver>
             override fun toString() = "$groupId:$artifactId:$version"
         }
 
-        data class Unparsed(override val groupId: String, override val artifactId: String, val version: String?) : VersionedIdentifier(){
+        data class Unparsed(override val groupId: String, override val artifactId: String, val version: String?) : VersionedIdentifier() {
             override fun toString() = "$groupId:$artifactId"
         }
     }
+
+    class VersionUnresolved(override val message: String) : RuntimeException(message)
 }

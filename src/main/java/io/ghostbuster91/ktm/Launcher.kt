@@ -74,22 +74,33 @@ private class KTM : NoRunCliktCommand() {
 private class Install : ParsedIdentifierCommand() {
 
     override fun run() {
-        if (!directoryManager.getLibraryDir(parsed).exists()) {
-            installer(directoryManager, jitPackArtifactToLinkTranslator, tarFileDownloader)(parsed)
-        } else {
-            logger.info("Library already installed in given version!")
+        try {
+            if (!directoryManager.getLibraryDir(parsed).exists()) {
+                installer(directoryManager, jitPackArtifactToLinkTranslator, tarFileDownloader)(parsed)
+            } else {
+                logger.info("Library already installed in given version!")
+            }
+        } catch (e: RuntimeException) {
+            logger.info(e.message!!)
+        } finally {
+            logger.info("Done")
         }
-        logger.info("Done")
     }
 }
 
 private class Use : ParsedIdentifierCommand() {
 
     override fun run() {
-        require(directoryManager.getLibraryDir(parsed).exists(), { "Library not found. Use \"ktm install $parsed\" to install it first." })
-        val binary = directoryManager.getBinary(parsed)
-        directoryManager.linkToBinary(parsed, binary)
-        logger.info("Done")
+        try {
+            require(directoryManager.getLibraryDir(parsed).exists(), { "Library not found. Use \"ktm install $parsed\" to install it first." })
+            val binary = directoryManager.getBinary(parsed)
+            directoryManager.linkToBinary(parsed, binary)
+            logger.info("Done")
+        } catch (e: RuntimeException) {
+            logger.info(e.message!!)
+        } finally {
+            logger.info("Done")
+        }
     }
 }
 
@@ -119,7 +130,13 @@ private class Search : CliktCommand() {
 private class Details : ParsedIdentifierCommand() {
 
     override fun run() {
-        TermUi.echo(URL("https://jitpack.io/api/builds/${parsed.name}/${parsed.shortVersion}").readText())
+        try {
+            TermUi.echo(URL("https://jitpack.io/api/builds/${parsed.name}/${parsed.shortVersion}").readText())
+        } catch (e: RuntimeException) {
+            logger.info(e.message!!)
+        } finally {
+            logger.info("Done")
+        }
     }
 }
 
