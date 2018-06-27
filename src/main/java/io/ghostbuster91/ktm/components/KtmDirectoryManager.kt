@@ -11,11 +11,11 @@ import java.io.File
 import java.nio.file.Files
 
 class KtmDirectoryManager(homeDir: GetHomeDir) {
-    private val ktmDir = homeDir().createChild(".ktm")
+    private val ktmDir = KtmDir(homeDir().createChild(".ktm"))
 
     fun getLibraryDir(identifier: Identifier.Parsed): File {
         return ktmDir
-                .createChild("modules")
+                .modules
                 .createChild(identifier.groupId)
                 .createChild(identifier.artifactId)
                 .createChild(identifier.shortVersion)
@@ -23,7 +23,7 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
 
     fun linkToBinary(identifier: Identifier.Parsed, binaryFile: FileObject) {
         val symbolicLink = ktmDir
-                .createChild("bin")
+                .binaries
                 .apply { mkdir() }
                 .createChild(identifier.artifactId)
         logger.info("Linking $identifier as ${symbolicLink.name}")
@@ -37,6 +37,13 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
 
     fun getAliasFile(): File {
         return ktmDir.createChild("aliases")
+    }
+
+    fun getBinaries(): List<String> {
+        return VFS.getManager()
+                .resolveFile(ktmDir.binaries.absolutePath)
+                .findFiles(ExecutableFilesSelector())
+                .map { it.name.baseName }
     }
 
     private fun File.linkTo(fileObject: FileObject) {
@@ -57,6 +64,12 @@ private class ExecutableFilesSelector : FileSelector {
     }
 
     override fun includeFile(fileInfo: FileSelectInfo): Boolean {
-        return fileInfo.file.isExecutable
+        return fileInfo.file.isExecutable && fileInfo.file.isFile
     }
+}
+
+private class KtmDir(private val ktmDir: File) {
+    val binaries = ktmDir.createChild("bin")
+    val modules = ktmDir.createChild("modules")
+    fun createChild(name: String) = ktmDir.createChild(name)
 }

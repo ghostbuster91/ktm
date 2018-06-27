@@ -62,7 +62,7 @@ private val tarFileDownloader = TarFileDownloader(createWaitingIndicator())
 fun main(args: Array<String>) {
     Log.setOutput(NullPrintStream())
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
-    KTM().subcommands(Install(), Aliases(), Info(), Search(), Details(), Use()).main(args)
+    KTM().subcommands(Install(), Aliases(), Info(), Search(), Details(), Use(), List()).main(args)
 }
 
 private class KTM : NoRunCliktCommand() {
@@ -151,6 +151,12 @@ private class Aliases : CliktCommand() {
         } else {
             aliasRepository.getAliases().forEach { TermUi.echo(it) }
         }
+    }
+}
+
+private class List : CliktCommand() {
+    override fun run() {
+        directoryManager.getBinaries().forEach(::println)
     }
 }
 
