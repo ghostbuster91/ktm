@@ -71,29 +71,33 @@ private class KTM : NoRunCliktCommand() {
     }
 }
 
-private class Install : CliktCommand() {
-    private val identifier by argument().convert { Identifier.Unparsed(it) }
-    private val version by option()
+private class Install : ParsedIdentifierCommand() {
 
     override fun run() {
-        logger.info("Installing $identifier")
-        installer(identifierSolver, directoryManager, jitPackArtifactToLinkTranslator, tarFileDownloader)(identifier, version)
+        if (!directoryManager.getLibraryDir(parsed).exists()) {
+            installer(directoryManager, jitPackArtifactToLinkTranslator, tarFileDownloader)(parsed)
+        } else {
+            logger.info("Library already installed in given version!")
+        }
         logger.info("Done")
     }
 }
 
-private class Use : CliktCommand() {
-    private val identifier by argument()
-    private val version by option()
+private class Use : ParsedIdentifierCommand() {
 
     override fun run() {
-        val parsed = Identifier.Unparsed(identifier)
-                .let { identifierSolver.resolve(it, version) }
         require(directoryManager.getLibraryDir(parsed).exists(), { "Library not found. Use \"ktm install $parsed\" to install it first." })
         val binary = directoryManager.getBinary(parsed)
         directoryManager.linkToBinary(parsed, binary)
         logger.info("Done")
     }
+}
+
+abstract class ParsedIdentifierCommand : CliktCommand() {
+    private val identifier by argument().convert { Identifier.Unparsed(it) }
+    private val version by option()
+
+    val parsed by lazy { identifierSolver.resolve(identifier, version) }
 }
 
 private class Info : CliktCommand() {
@@ -112,12 +116,9 @@ private class Search : CliktCommand() {
     }
 }
 
-private class Details : CliktCommand() {
-    private val identifier by argument()
-    private val version by option()
+private class Details : ParsedIdentifierCommand() {
+
     override fun run() {
-        val parsed = Identifier.Unparsed(identifier)
-                .let { identifierSolver.resolve(it, version) }
         TermUi.echo(URL("https://jitpack.io/api/builds/${parsed.name}/${parsed.shortVersion}").readText())
     }
 }

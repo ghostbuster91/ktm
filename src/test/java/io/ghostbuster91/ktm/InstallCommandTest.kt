@@ -4,8 +4,6 @@ import io.ghostbuster91.ktm.components.KtmDirectoryManager
 import io.ghostbuster91.ktm.components.TarFileDownloader
 import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
-import io.ghostbuster91.ktm.identifier.artifact.ArtifactSolverDispatcher
-import io.ghostbuster91.ktm.identifier.version.VersionSolverDispatcher
 import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
 import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
 import io.reactivex.Observable
@@ -44,12 +42,12 @@ class InstallCommandTest {
     }
 
     private fun install(artifactToLink: (Identifier.Parsed) -> String) {
+        val identifierResolver = IdentifierResolver(listOf(SimpleArtifactResolver()), listOf(SimpleVersionResolver()))
         installer(
-                IdentifierResolver(listOf(SimpleArtifactResolver()),listOf(SimpleVersionResolver())),
                 KtmDirectoryManager { testFolderRuler.root },
                 ArtifactToLinkTranslator(f = artifactToLink),
                 TarFileDownloader(Observable.never())
-        ).invoke(Identifier.Unparsed("com.github.myOrg:myRepo"), "1.1")
+        ).invoke(Identifier.Unparsed("com.github.myOrg:myRepo").let { identifierResolver.resolve(it, "1.1") })
     }
 }
 
