@@ -31,7 +31,7 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
     }
 
     fun getBinary(identifier: Identifier.Parsed): FileObject {
-        val binaryFile = VFS.getManager().resolveFile(getLibraryDir(identifier).absolutePath).findFiles(ExecutableFilesSelector()).first()
+        val binaryFile = VFS.getManager().resolveFile(getLibraryDir(identifier).absolutePath).findFiles(ExecutableFilesSelector()).single()
         return binaryFile!!
     }
 
