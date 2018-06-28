@@ -24,7 +24,7 @@ class LineWrappingLogger : Logger {
         print(msg)
     }
 
-    override fun info(msg: String) {
+    override fun info(msg: Any?) {
         println(msg)
     }
 }

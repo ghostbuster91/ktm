@@ -6,5 +6,5 @@ interface Logger : HttpLoggingInterceptor.Logger {
     fun error(msg: String, e: Throwable)
     override fun log(msg: String)
     fun append(msg: String)
-    fun info(msg: String)
+    fun info(msg: Any?)
 }
