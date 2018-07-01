@@ -14,7 +14,7 @@ import io.ghostbuster91.ktm.identifier.version.VersionSolverDispatcher.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class ArtifactResolverTest {
+class IdentifierResolverTest {
 
     @Test
     fun shouldDispatchSolvingToSimpleSolver() {
