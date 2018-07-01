@@ -21,7 +21,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.file.Files
 
-class InstallCommandTest2 {
+class InstallCommandTest {
 
     @JvmField
     @Rule
