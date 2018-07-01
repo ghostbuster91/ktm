@@ -13,7 +13,7 @@ class TarFileDownloader(private val observable: Observable<out Any>) : Downloade
         logger.info("Found archive: $url")
         val files = decompress(url, destination)
         logger.info("Looking for binary file")
-        val binaryFile = files.firstOrNull { it.name.extension.isEmpty() }
+        val binaryFile = files.firstOrNull { it.name.extension.isEmpty() && it.isFile }
         require(binaryFile != null, { "No binary files found!" })
         logger.info("Found: ${binaryFile!!.name.baseName}")
         return binaryFile

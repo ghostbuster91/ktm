@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 
 typealias GetHomeDir = () -> File
 
-val logger: Logger = LineWrappingLogger()
+var logger: Logger = LineWrappingLogger()
 private val retrofit = Retrofit.Builder()
         .client(OkHttpClient.Builder().readTimeout(5, TimeUnit.MINUTES).build())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())

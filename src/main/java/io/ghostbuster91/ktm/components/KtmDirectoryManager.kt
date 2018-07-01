@@ -18,7 +18,7 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
                 .modules
                 .createChild(identifier.groupId)
                 .createChild(identifier.artifactId)
-                .createChild(identifier.shortVersion)
+                .createChild(identifier.version)
     }
 
     fun linkToBinary(identifier: Identifier.Parsed, binaryFile: FileObject) {
