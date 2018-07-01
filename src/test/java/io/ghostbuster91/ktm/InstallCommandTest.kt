@@ -55,7 +55,7 @@ class InstallCommandTest {
 
     private fun installTestRepo(name: String) {
         TestCommand().subcommands(Install(KtmDirectoryManager { testFolderRuler.root },
-                TestArifactToLinkTranslator(),
+                TestArtifactToLinkTranslator(),
                 TarFileDownloader(Observable.never()),
                 IdentifierResolver(listOf(SimpleArtifactResolver()), listOf(DefaultVersionResolver()))
         )).main(arrayOf("install", name))
@@ -64,7 +64,7 @@ class InstallCommandTest {
 
 class TestCommand : NoRunCliktCommand()
 
-class TestArifactToLinkTranslator : ArtifactToLinkTranslator {
+class TestArtifactToLinkTranslator : ArtifactToLinkTranslator {
     override fun getDownloadLink(identifier: Identifier.Parsed): String {
         return javaClass.classLoader.getResource("${identifier.groupId}/${identifier.artifactId}/${identifier.version}/archive.tar").path
     }
