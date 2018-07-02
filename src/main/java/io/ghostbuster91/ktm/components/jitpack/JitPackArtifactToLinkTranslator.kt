@@ -1,4 +1,4 @@
-package io.ghostbuster91.ktm.components
+package io.ghostbuster91.ktm.components.jitpack
 
 import io.ghostbuster91.ktm.ArtifactToLinkTranslator
 import io.ghostbuster91.ktm.identifier.Identifier

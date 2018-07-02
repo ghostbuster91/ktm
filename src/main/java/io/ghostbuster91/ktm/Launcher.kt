@@ -7,6 +7,9 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.ghostbuster91.ktm.commands.*
 import io.ghostbuster91.ktm.components.*
+import io.ghostbuster91.ktm.components.jitpack.BuildLogApi
+import io.ghostbuster91.ktm.components.jitpack.JitPackApi
+import io.ghostbuster91.ktm.components.jitpack.JitPackArtifactToLinkTranslator
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
 import io.ghostbuster91.ktm.identifier.artifact.*
 import io.ghostbuster91.ktm.identifier.version.DefaultVersionResolver
