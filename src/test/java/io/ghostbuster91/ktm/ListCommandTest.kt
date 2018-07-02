@@ -36,6 +36,16 @@ class ListCommandTest {
         verify(logger).info("validRepo --> master-SNAPSHOT")
     }
 
+    @Test
+    fun shouldReturnInstalledApplicationsTogetherWithTheirVersions() {
+        installTestRepo("testOrg:validRepo", testFolderRuler.root)
+        installTestRepo("testOrg:otherValidRepo", testFolderRuler.root)
+        reset(logger)
+        listApps()
+        verify(logger).info("validRepo --> master-SNAPSHOT")
+        verify(logger).info("otherValidRepo --> master-SNAPSHOT")
+    }
+
     private fun listApps() {
         TestCommand().subcommands(List(KtmDirectoryManager { testFolderRuler.root })).main(arrayOf("list"))
     }
