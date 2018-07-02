@@ -39,11 +39,11 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
         return ktmDir.createChild("aliases")
     }
 
-    fun getBinaries(): List<String> {
+    fun getBinaries(): List<FileObject> {
         return VFS.getManager()
                 .resolveFile(ktmDir.binaries.absolutePath)
                 .findFiles(ExecutableFilesSelector())
-                .map { it.name.baseName }
+                ?.toList() ?: emptyList()
     }
 
     private fun File.linkTo(fileObject: FileObject) {

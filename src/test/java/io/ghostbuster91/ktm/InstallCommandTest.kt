@@ -1,19 +1,10 @@
 package io.ghostbuster91.ktm
 
-import com.github.ajalt.clikt.core.NoRunCliktCommand
-import com.github.ajalt.clikt.core.subcommands
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import io.ghostbuster91.ktm.commands.Install
-import io.ghostbuster91.ktm.components.KtmDirectoryManager
-import io.ghostbuster91.ktm.components.TarFileDownloader
-import io.ghostbuster91.ktm.identifier.Identifier
-import io.ghostbuster91.ktm.identifier.IdentifierResolver
-import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
-import io.ghostbuster91.ktm.identifier.version.DefaultVersionResolver
-import io.reactivex.Observable
+import io.ghostbuster91.ktm.utils.installTestRepo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -53,19 +44,6 @@ class InstallCommandTest {
         assert(Files.isSymbolicLink(symlink.toPath()))
     }
 
-    private fun installTestRepo(name: String) {
-        TestCommand().subcommands(Install(KtmDirectoryManager { testFolderRuler.root },
-                TestArtifactToLinkTranslator(),
-                TarFileDownloader(Observable.never()),
-                IdentifierResolver(listOf(SimpleArtifactResolver()), listOf(DefaultVersionResolver()))
-        )).main(arrayOf("install", name))
-    }
+    private fun installTestRepo(name: String) = installTestRepo(name, testFolderRuler.root)
 }
 
-class TestCommand : NoRunCliktCommand()
-
-class TestArtifactToLinkTranslator : ArtifactToLinkTranslator {
-    override fun getDownloadLink(identifier: Identifier.Parsed): String {
-        return javaClass.classLoader.getResource("${identifier.groupId}/${identifier.artifactId}/${identifier.version}/archive.tar").path
-    }
-}
