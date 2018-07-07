@@ -84,6 +84,22 @@ You can add your own aliases easily:
 ```
 ktm aliases --add yourAliasName yourArtifactFullyQualifiedName
 ```
+### Info command
+To fetch information about versions of given artifact simply invoke info command. It is just a facade over jitPack api.
+```
+ktm info ktm
+```
+```
+Looking for com.github.ghostbuster91:ktm......
+8fb07d78d4 --> Error
+e19240a0fb --> ok
+0.0.1 --> Error
+0.0.2 --> ok
+92af9f2605 --> ok
+0.0.4 --> ok
+6624eefc9f --> ok
+0.0.5 --> ok
+```
 
 ### Requirements for applications
 There are only two requirements for applications, so they can be installed using ktm.
@@ -138,4 +154,4 @@ All installed artifacts are stores under `~/.ktm/modules` directory. Next ktm cr
 
 
 TODO:
-Describe info, details
+Describe details
