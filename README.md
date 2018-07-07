@@ -37,20 +37,20 @@ Commands:
 ```
 
 ### Install command
-To illustrate workflow with this tool we will use ktm-example-artifact repository. // ??
+To illustrate workflow with this tool we will use [ktm-example-artifact](https://github.com/ghostbuster91/ktm-example-artifact)
 
-Installing example-artifact:
+Installing ktm-example-artifact:
 ```
-ktm install com.github.ghostbuster91:example-artifact --version 1.0.0
+ktm install com.github.ghostbuster91:ktm-example-artifact --version 1.0.0
 ```
 As a version `git tag` or sha of git commit can be provided.
 For many artifacts(read below for explanation) this can be simplified to:
 
 ```
-ktm install example-artifact
+ktm install ktm-example-artifact
 ```
 
-KTM will ask jitpack about all artifacts which contains `example-artifact` in their name.
+KTM will ask jitpack about all artifacts which contain `ktm-example-artifact` in their name.
 If result will be a single item, ktm will proceed with installation, otherwise it will stop printing matched artifacts.
 Version, if not provided, will be automatically picked up by asking jitpack about latest successful built of given artifact.
 
