@@ -1,6 +1,5 @@
 package io.ghostbuster91.ktm
 
-import com.github.ajalt.clikt.core.subcommands
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
@@ -12,7 +11,6 @@ import io.ghostbuster91.ktm.commands.Info
 import io.ghostbuster91.ktm.components.jitpack.JitPackApi
 import io.ghostbuster91.ktm.identifier.artifact.ArtifactSolverDispatcher
 import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
-import io.ghostbuster91.ktm.utils.TestCommand
 import io.ghostbuster91.ktm.utils.readJsonFromFile
 import io.reactivex.Observable
 import org.junit.Before
@@ -35,9 +33,8 @@ class InfoCommandTest {
     }
 
     private fun infoCommand(jitPackApi: JitPackApi, artifactName: String) {
-        TestCommand()
-                .subcommands(Info(jitPackApi, artifactResolver = ArtifactSolverDispatcher(listOf(SimpleArtifactResolver()))))
-                .main(arrayOf("info", artifactName))
+        Info(jitPackApi, artifactResolver = ArtifactSolverDispatcher(listOf(SimpleArtifactResolver())))
+                .main(arrayOf(artifactName))
     }
 }
 

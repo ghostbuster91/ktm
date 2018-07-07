@@ -1,7 +1,5 @@
 package io.ghostbuster91.ktm.utils
 
-import com.github.ajalt.clikt.core.NoRunCliktCommand
-import com.github.ajalt.clikt.core.subcommands
 import io.ghostbuster91.ktm.ArtifactToLinkTranslator
 import io.ghostbuster91.ktm.commands.Install
 import io.ghostbuster91.ktm.components.KtmDirectoryManager
@@ -15,8 +13,6 @@ import io.ghostbuster91.ktm.identifier.version.VersionSolverDispatcher
 import io.reactivex.Observable
 import java.io.File
 
-class TestCommand : NoRunCliktCommand()
-
 class TestArtifactToLinkTranslator : ArtifactToLinkTranslator {
     override fun getDownloadLink(identifier: Identifier.Parsed): String {
         return javaClass.classLoader.getResource("${identifier.groupId}/${identifier.artifactId}/${identifier.version}/archive.tar").path
@@ -24,9 +20,9 @@ class TestArtifactToLinkTranslator : ArtifactToLinkTranslator {
 }
 
 fun installTestRepo(name: String, rootFile: File) {
-    TestCommand().subcommands(Install(KtmDirectoryManager { rootFile },
+    Install(KtmDirectoryManager { rootFile },
             TestArtifactToLinkTranslator(),
             TarFileDownloader(Observable.never()),
             IdentifierResolver(ArtifactSolverDispatcher(listOf(SimpleArtifactResolver())), VersionSolverDispatcher(listOf(DefaultVersionResolver())))
-    )).main(arrayOf("install", name))
+    ).main(arrayOf(name))
 }

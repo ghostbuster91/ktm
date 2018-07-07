@@ -1,10 +1,8 @@
 package io.ghostbuster91.ktm
 
-import com.github.ajalt.clikt.core.subcommands
 import com.nhaarman.mockito_kotlin.*
 import io.ghostbuster91.ktm.commands.List
 import io.ghostbuster91.ktm.components.KtmDirectoryManager
-import io.ghostbuster91.ktm.utils.TestCommand
 import io.ghostbuster91.ktm.utils.installTestRepo
 import org.junit.Before
 import org.junit.Rule
@@ -47,6 +45,6 @@ class ListCommandTest {
     }
 
     private fun listApps() {
-        TestCommand().subcommands(List(KtmDirectoryManager { testFolderRuler.root })).main(arrayOf("list"))
+        List(KtmDirectoryManager { testFolderRuler.root }).main(emptyArray())
     }
 }
