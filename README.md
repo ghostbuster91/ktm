@@ -92,6 +92,50 @@ There are only two requirements for applications, so they can be installed using
 
 An example application can be found [here](https://github.com/ghostbuster91/ktm-example-artifact/)
 
+### KTM internals
+
+Below is an output of `tree ~/.ktm` command just after the installation.
+```
+.ktm
+├── aliases
+├── bin
+│   └── ktm -> ~/.ktm/modules/com.github.ghostbuster91/ktm/0.0.5/ktm/bin/ktm
+└── modules
+    └── com.github.ghostbuster91
+        └── ktm
+            ├── 0.0.5
+            │   └── ktm
+            │       ├── bin
+            │       │   ├── ktm
+            │       │   └── ktm.bat
+            │       └── lib
+            │           ├── adapter-rxjava2-2.3.0.jar
+            │           ├── annotations-13.0.jar
+            │           ├── clikt-1.2.0.jar
+            │           ├── commons-codec-1.2.jar
+            │           ├── commons-compress-1.14.jar
+            │           ├── commons-httpclient-3.1.jar
+            │           ├── commons-logging-1.2.jar
+            │           ├── commons-vfs2-2.2.jar
+            │           ├── converter-moshi-2.3.0.jar
+            │           ├── converter-scalars-2.3.0.jar
+            │           ├── jline-2.14.2.jar
+            │           ├── kotlin-reflect-1.2.21.jar
+            │           ├── kotlin-stdlib-1.2.40.jar
+            │           ├── ktm-0.0.5.jar
+            │           ├── logging-interceptor-3.9.1.jar
+            │           ├── moshi-1.6.0.jar
+            │           ├── moshi-kotlin-1.6.0.jar
+            │           ├── okhttp-3.9.1.jar
+            │           ├── okio-1.14.0.jar
+            │           ├── reactive-streams-1.0.1.jar
+            │           ├── retrofit-2.3.0.jar
+            │           ├── rxjava-2.1.7.jar
+            │           └── rxkotlin-2.2.0.jar
+            └── ktm-0.0.5
+```
+All installed artifacts are stores under `~/.ktm/modules` directory. Next ktm creates symlinks for currently used versions of relevant artifacts. These symlinks are stored in `~/.ktm/bin`. 
+
 
 TODO:
 Describe info, details
