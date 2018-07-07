@@ -8,7 +8,7 @@ import retrofit2.http.Query
 interface JitPackApi {
     //TODO: dynamic parsing
     @GET("api/builds/{groupId}/{artifactId}")
-    fun builds(@Path("groupId") groupId: String, @Path("artifactId") artifactId: String): Observable<String>
+    fun builds(@Path("groupId") groupId: String, @Path("artifactId") artifactId: String): Observable<Map<String, Any>>
 
     @GET("api/search")
     fun search(@Query("q") query: String): Observable<Map<String, List<String>>>

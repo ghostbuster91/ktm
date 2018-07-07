@@ -13,13 +13,11 @@ import io.ghostbuster91.ktm.components.jitpack.BuildLogApi
 import io.ghostbuster91.ktm.components.jitpack.JitPackApi
 import io.ghostbuster91.ktm.components.jitpack.JitPackArtifactToLinkTranslator
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
-import io.ghostbuster91.ktm.identifier.artifact.AliasArtifactResolver
-import io.ghostbuster91.ktm.identifier.artifact.AliasFileRepository
-import io.ghostbuster91.ktm.identifier.artifact.SearchingArtifactResolver
-import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
+import io.ghostbuster91.ktm.identifier.artifact.*
 import io.ghostbuster91.ktm.identifier.version.DefaultVersionResolver
 import io.ghostbuster91.ktm.identifier.version.LatestVersionFetchingIdentifierResolver
 import io.ghostbuster91.ktm.identifier.version.SimpleVersionResolver
+import io.ghostbuster91.ktm.identifier.version.VersionSolverDispatcher
 import io.ghostbuster91.ktm.utils.NullPrintStream
 import io.reactivex.Observable
 import jline.internal.Log
@@ -45,14 +43,15 @@ private val jitPackApi = retrofit.create(JitPackApi::class.java)
 private val buildApi = retrofit.create(BuildLogApi::class.java)
 private val directoryManager = KtmDirectoryManager { File(System.getProperty("user.home")) }
 private val aliasRepository = AliasFileRepository(directoryManager)
+private val artifactSolverDispatcher = ArtifactSolverDispatcher(listOf(AliasArtifactResolver(aliasRepository), SearchingArtifactResolver {
+    { jitPackApi.search(it).blockingFirst() }.withWaiter()
+}, SimpleArtifactResolver()))
 private val identifierSolver = IdentifierResolver(
-        artifactResolvers = listOf(AliasArtifactResolver(aliasRepository), SearchingArtifactResolver {
-            { jitPackApi.search(it).blockingFirst() }.withWaiter()
-        }, SimpleArtifactResolver()),
-        versionResolvers = listOf(SimpleVersionResolver(),
+        artifactSolverDispatcher = artifactSolverDispatcher,
+        versionSolverDispatcher = VersionSolverDispatcher(listOf(SimpleVersionResolver(),
                 LatestVersionFetchingIdentifierResolver { g, a ->
                     { jitPackApi.latestRelease(g, a).blockingFirst() }.withWaiter()
-                }, DefaultVersionResolver()))
+                }, DefaultVersionResolver())))
 private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator { g, a, v ->
     { buildApi.getBuildLog(g, a, v).blockingFirst() }.withWaiter()
 }
@@ -64,7 +63,7 @@ fun main(args: Array<String>) {
     KTM().subcommands(
             Install(directoryManager, jitPackArtifactToLinkTranslator, tarFileDownloader, identifierSolver),
             Aliases(aliasRepository),
-            Info(),
+            Info(jitPackApi, artifactSolverDispatcher),
             Search(),
             Details(identifierSolver),
             Use(directoryManager, identifierSolver),

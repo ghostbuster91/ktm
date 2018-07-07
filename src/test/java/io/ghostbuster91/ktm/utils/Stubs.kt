@@ -8,8 +8,10 @@ import io.ghostbuster91.ktm.components.KtmDirectoryManager
 import io.ghostbuster91.ktm.components.TarFileDownloader
 import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
+import io.ghostbuster91.ktm.identifier.artifact.ArtifactSolverDispatcher
 import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
 import io.ghostbuster91.ktm.identifier.version.DefaultVersionResolver
+import io.ghostbuster91.ktm.identifier.version.VersionSolverDispatcher
 import io.reactivex.Observable
 import java.io.File
 
@@ -25,6 +27,6 @@ fun installTestRepo(name: String, rootFile: File) {
     TestCommand().subcommands(Install(KtmDirectoryManager { rootFile },
             TestArtifactToLinkTranslator(),
             TarFileDownloader(Observable.never()),
-            IdentifierResolver(listOf(SimpleArtifactResolver()), listOf(DefaultVersionResolver()))
+            IdentifierResolver(ArtifactSolverDispatcher(listOf(SimpleArtifactResolver())), VersionSolverDispatcher(listOf(DefaultVersionResolver())))
     )).main(arrayOf("install", name))
 }
