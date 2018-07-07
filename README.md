@@ -86,7 +86,7 @@ ktm aliases --add yourAliasName yourArtifactFullyQualifiedName
 ```
 
 ### Requirements for applications
-There are only two requirements for application, so it can be installed using ktm.
+There are only two requirements for applications, so they can be installed using ktm.
 1. Use gradle as build system
 2. Have application plugin applied
 
