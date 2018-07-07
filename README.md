@@ -55,7 +55,7 @@ KTM will ask jitpack about all artifacts which contain `ktm-example-artifact` in
 If result will be a single item, ktm will proceed with installation, otherwise it will stop printing matched artifacts.
 Version, if not provided, will be automatically picked up by asking jitpack about latest successful built of given artifact.
 
-*Note: jitPack api returns only results for repositories which have at least one `git tag`* and that tag has been requested to download.
+*Note: jitPack api returns only results for repositories which have at least one `git tag` and that tag has been requested to download.*
 
 ### Use command
 If you have many versions of single artifact installed you can easily switch between them using `use` command:
@@ -75,7 +75,16 @@ ktm list
 ktm --> 0.0.5
 ktm-example-artifact --> 2.0.0
 ```
-
+### Search command
+If you want to look for some command or just check all commands issued from particular repository you can use search command.
+```
+ktm search com.github.ghostbuster91
+```
+```
+com.github.ghostbuster91:ktm --> [0.0.5, 0.0.4, 0.0.2]
+com.github.ghostbuster91:solidity-collision-checker --> [1.0.0]
+```
+*Search command will show you only artifacts which were built by jitPack, which means that they were requested to download at least once.*
 ### Aliases command
 
 If you work in a team and someone within it is developing a tool for the rest, you will find your self constantly updating it. In some cases naming resolving may not work for you and typing the fully qualified name of the artifact is tedius.
@@ -112,7 +121,7 @@ e19240a0fb --> ok
 6624eefc9f --> ok
 0.0.5 --> ok
 ```
-Info command will show you only artifacts which were built by jitPack, means that they were requested to download at least once.
+*Info command will show you only artifacts which were built by jitPack, which means that they were requested to download at least once.*
 
 ### Requirements for applications
 There are only two requirements for applications, so they can be installed using ktm.
