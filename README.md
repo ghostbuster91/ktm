@@ -20,6 +20,7 @@ If you stripped it off, it is basically another tool to manage binary files. So 
 - Last but not least, I wanted to write some kotlin code.
 
 ## Usage
+### Install command
 To illustrate workflow with this tool we will use ktm-example-artifact repository. // ??
 
 Installing example-artifact:
@@ -38,7 +39,7 @@ If result will be a single item, ktm will proceed with installation, otherwise i
 Version, if not provided, will be automatically picked up by asking jitpack about latest successful built of given artifact.
 
 *Note: jitPack api returns only results for repositories which have at least one `git tag`*
-
+### Use command
 If you have many versions of single artifact installed you can easily switch between them using `use` command:
 
 ```
@@ -47,5 +48,26 @@ ktm use example-artifact --version 2.0.0
 
 Again, version and naming resolving works the same way as during installation.
 
+### Aliases command
+
+If you work in a team and someone within it is developing a tool for the rest, you will find your self constantly updating it. In some cases naming resolving may not work for you and typing the fully qualified name of the artifact is tedius.
+
+That's why the aliases were added.
+
+To list all defined aliases:
+```
+ktm aliases
+```
+
+By default there is one aliases added for ktm:
+```
+(ktm, com.github.ghostbuster91:ktm)
+```
+
+You can add your own aliases easily:
+```
+ktm aliases --add yourAliasName yourArtifactFullyQualifiedName
+```
+
 TODO:
-Describe aliases, info, details
+Describe info, details
