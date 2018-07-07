@@ -20,6 +20,22 @@ If you stripped it off, it is basically another tool to manage binary files. So 
 - Last but not least, I wanted to write some kotlin code.
 
 ## Usage
+```
+Usage: ktm [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --version   Show the version and exit.
+  -h, --help  Show this message and exit
+
+Commands:
+  install  
+  aliases  
+  info     
+  search   
+  details  
+  use   
+```
+
 ### Install command
 To illustrate workflow with this tool we will use ktm-example-artifact repository. // ??
 
