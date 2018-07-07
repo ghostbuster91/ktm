@@ -75,7 +75,7 @@ To list all defined aliases:
 ktm aliases
 ```
 
-By default there is one aliases added for ktm:
+By default there is one alias added for ktm:
 ```
 (ktm, com.github.ghostbuster91:ktm)
 ```
