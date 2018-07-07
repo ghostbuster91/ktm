@@ -36,6 +36,7 @@ ktm install example-artifact
 KTM will ask jitpack about all artifacts which contains `example-artifact` in their name.
 If result will be a single item, ktm will proceed with installation, otherwise it will stop printing matched artifacts.
 Version, if not provided, will be automatically picked up by asking jitpack about latest successful built of given artifact.
+
 *Note: jitPack api returns only results for repositories which have at least one `git tag`*
 
 If you have many versions of single artifact installed you can easily switch between them using `use` command:
