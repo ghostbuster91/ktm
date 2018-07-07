@@ -14,7 +14,7 @@ If you stripped it off, it is basically another tool to manage binary files. So 
 - I think that cli will stick with us for a while. I see many great cli applications being built using js,
   and I wanted to be able to build my own tools, but in a language I prefer.
 - Next thing is that many of mentioned above tools(if not all) require developers to publish artifacts to some other repository.
-  In the open source approach where everything which is needed to assemble the binary is already on the internet,
+  In the open source approach, where everything which is needed, to assemble the binary, is already on the internet,
   I perceive this step as an unnecessary burden and redundant work.
   Using this tool, artifacts can be installed directly from github repository.
 - Last but not least, I wanted to write some kotlin code.
