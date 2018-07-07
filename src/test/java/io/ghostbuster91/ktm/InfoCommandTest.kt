@@ -13,6 +13,7 @@ import io.ghostbuster91.ktm.components.jitpack.JitPackApi
 import io.ghostbuster91.ktm.identifier.artifact.ArtifactSolverDispatcher
 import io.ghostbuster91.ktm.identifier.artifact.SimpleArtifactResolver
 import io.ghostbuster91.ktm.utils.TestCommand
+import io.ghostbuster91.ktm.utils.readJsonFromFile
 import io.reactivex.Observable
 import org.junit.Before
 import org.junit.Test
@@ -27,21 +28,11 @@ class InfoCommandTest {
     @Test
     fun shouldReturnResponseFromJitPackIfArtifactWasResolved() {
         val jitPackApi = mock<JitPackApi>()
-        val resource = readJsonFromFile("jitPack/ktmInfo.json")
+        val resource = readJsonFromFile("jitPack/ktmInfo.json").parseToMap()
         whenever(jitPackApi.builds(any(), any())).thenReturn(Observable.just(resource))
         infoCommand(jitPackApi, "com.github.ghostbuster91:ktm")
         verify(logger).info("8fb07d78d4 --> Error\ne19240a0fb --> ok")
     }
-
-    private fun readJsonFromFile(fileName: String) = javaClass.classLoader.getResource(fileName)
-            .readText()
-            .let {
-                Moshi.Builder()
-                        .add(KotlinJsonAdapterFactory())
-                        .build()
-                        .adapter<Map<String, Any>>(Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java))
-                        .fromJson(it)
-            }
 
     private fun infoCommand(jitPackApi: JitPackApi, artifactName: String) {
         TestCommand()
@@ -49,3 +40,9 @@ class InfoCommandTest {
                 .main(arrayOf("info", artifactName))
     }
 }
+
+private fun String.parseToMap() = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .build()
+        .adapter<Map<String, Any>>(Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java))
+        .fromJson(this)
