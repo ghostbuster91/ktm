@@ -33,7 +33,8 @@ Commands:
   info     
   search   
   details  
-  use   
+  use      
+  list   
 ```
 
 ### Install command
@@ -63,6 +64,16 @@ ktm use ktm-example-artifact --version 2.0.0
 ```
 
 Again, version and naming resolving works the same way as during installation.
+
+### List command
+Retrive all installed binaries with corresponding versions
+```
+ktm list
+```
+```
+ktm --> 0.0.5
+ktm-example-artifact --> 2.0.0
+```
 
 ### Aliases command
 
