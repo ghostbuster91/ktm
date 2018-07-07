@@ -59,7 +59,7 @@ Version, if not provided, will be automatically picked up by asking jitpack abou
 If you have many versions of single artifact installed you can easily switch between them using `use` command:
 
 ```
-ktm use example-artifact --version 2.0.0
+ktm use ktm-example-artifact --version 2.0.0
 ```
 
 Again, version and naming resolving works the same way as during installation.
