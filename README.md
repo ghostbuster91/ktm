@@ -1,4 +1,4 @@
-# Kotlin Tooling Manager
+# Kotlin Tooling Manager [![Build Status](https://travis-ci.org/ghostbuster91/ktm.svg?branch=master)](https://travis-ci.org/ghostbuster91/ktm) ![Release](https://jitpack.io/v/ghostbuster91/ktm.svg)
 
 KTM allows you to install command line applications(gradle based) directly from github.
 
