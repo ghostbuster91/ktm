@@ -8,8 +8,8 @@ import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
 
 abstract class ParsedIdentifierCommand(private val identifierResolver: IdentifierResolver, help: String = "") : CliktCommand(help = help) {
-    private val identifier by argument().convert { Identifier.Unparsed(it) }
+    private val artifact by argument().convert { Identifier.Unparsed(it) }
     private val version by option()
 
-    val parsed by lazy { identifierResolver.resolve(identifier, version) }
+    val parsed by lazy { identifierResolver.resolve(artifact, version) }
 }
