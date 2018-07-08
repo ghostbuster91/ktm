@@ -12,7 +12,7 @@ import org.apache.commons.vfs2.FileObject
 class Install(private val directoryManager: KtmDirectoryManager,
               private val artifactToLinkTranslator: ArtifactToLinkTranslator,
               private val tarFileDownloader: TarFileDownloader,
-              identifierResolver: IdentifierResolver) : ParsedIdentifierCommand(identifierResolver) {
+              identifierResolver: IdentifierResolver) : ParsedIdentifierCommand(identifierResolver, help = "Install or update given package") {
 
     override fun run() {
         try {

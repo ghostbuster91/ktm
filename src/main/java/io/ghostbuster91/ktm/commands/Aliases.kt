@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.validate
 import io.ghostbuster91.ktm.identifier.artifact.AliasRepository
 import io.ghostbuster91.ktm.logger
 
-class Aliases(private val aliasRepository: AliasRepository) : CliktCommand() {
+class Aliases(private val aliasRepository: AliasRepository) : CliktCommand(help = "Manage aliases") {
     private val artifactRegex = "([\\w.]+):([\\w.]+)".toRegex()
     private val aliasRegex = "(\\w)".toRegex()
     private val add by option(metavar = "\$alias \$artifact", help = "Use following pattern: \$alias \$artifact")

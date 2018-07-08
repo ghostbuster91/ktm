@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import io.ghostbuster91.ktm.identifier.Identifier
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
 
-abstract class ParsedIdentifierCommand(private val identifierResolver: IdentifierResolver) : CliktCommand() {
+abstract class ParsedIdentifierCommand(private val identifierResolver: IdentifierResolver, help: String = "") : CliktCommand(help = help) {
     private val identifier by argument().convert { Identifier.Unparsed(it) }
     private val version by option()
 

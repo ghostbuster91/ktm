@@ -4,11 +4,14 @@ import io.ghostbuster91.ktm.components.KtmDirectoryManager
 import io.ghostbuster91.ktm.identifier.IdentifierResolver
 import io.ghostbuster91.ktm.logger
 
-class Use(private val directoryManager: KtmDirectoryManager, identifierResolver: IdentifierResolver) : ParsedIdentifierCommand(identifierResolver) {
+class Use(
+        private val directoryManager: KtmDirectoryManager,
+        identifierResolver: IdentifierResolver
+) : ParsedIdentifierCommand(identifierResolver, help = "Switch to another version of already installed package") {
 
     override fun run() {
         try {
-            require(directoryManager.getLibraryDir(parsed).exists(), { "Library not found. Use \"ktm install $parsed\" to install it first." })
+            require(directoryManager.getLibraryDir(parsed).exists()) { "Library not found. Use \"ktm install $parsed\" to install it first." }
             val binary = directoryManager.getBinary(parsed)
             directoryManager.linkToBinary(parsed, binary)
             logger.info("Done")

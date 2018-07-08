@@ -6,7 +6,7 @@ import io.ghostbuster91.ktm.logger
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class List(private val directoryManager: KtmDirectoryManager) : CliktCommand() {
+class List(private val directoryManager: KtmDirectoryManager) : CliktCommand("Display all installed packages with corresponding versions") {
     override fun run() {
         directoryManager.getBinaries()
                 .map { it.name.baseName to Files.readSymbolicLink(Paths.get(it.name.path)).subpath(6, 7) }

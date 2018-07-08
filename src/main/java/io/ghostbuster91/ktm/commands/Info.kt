@@ -7,7 +7,12 @@ import io.ghostbuster91.ktm.components.jitpack.JitPackApi
 import io.ghostbuster91.ktm.identifier.artifact.ArtifactSolverDispatcher
 import io.ghostbuster91.ktm.logger
 
-class Info(private val jitPackApi: JitPackApi, artifactResolver: ArtifactSolverDispatcher) : CliktCommand() {
+class Info(private val jitPackApi: JitPackApi, artifactResolver: ArtifactSolverDispatcher) : CliktCommand(help =
+"""Search jitPack api for versions of given package
+
+   This command will show you only artifacts which were built by jitPack,
+   which means that they were requested to download at least once.
+""".trimIndent()) {
     private val artifact by argument()
             .convert { artifactResolver.resolve(ArtifactSolverDispatcher.Artifact.Unparsed(it)) }
 
