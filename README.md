@@ -32,9 +32,8 @@ Commands:
   aliases  Manage aliases
   info     Search jitPack api for versions of given package
   search   Search jitPack api for given substring in package name
-  details  
   use      Switch to another version of already installed package
-  list     Display all installed packages with corresponding versions  
+  list     Display all installed packages with corresponding versions
 ```
 
 ### Install command
@@ -173,7 +172,3 @@ Below is an output of `tree ~/.ktm` command just after the installation.
             └── ktm-0.0.5
 ```
 All installed artifacts are stores under `~/.ktm/modules` directory. Next ktm creates symlinks for currently used versions of relevant artifacts. These symlinks are stored in `~/.ktm/bin`. 
-
-
-TODO:
-Describe details

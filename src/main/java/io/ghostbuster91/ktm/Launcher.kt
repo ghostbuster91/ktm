@@ -65,7 +65,6 @@ fun main(args: Array<String>) {
             Aliases(aliasRepository),
             Info(jitPackApi, artifactSolverDispatcher),
             Search(jitPackApi),
-            Details(identifierSolver),
             Use(directoryManager, identifierSolver),
             io.ghostbuster91.ktm.commands.List(directoryManager)
     ).main(args)
