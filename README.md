@@ -28,13 +28,13 @@ Options:
   -h, --help  Show this message and exit
 
 Commands:
-  install  
-  aliases  
-  info     
-  search   
+  install  Install or update given package
+  aliases  Manage aliases
+  info     Search jitPack api for versions of given package
+  search   Search jitPack api for given substring in package name
   details  
-  use      
-  list   
+  use      Switch to another version of already installed package
+  list     Display all installed packages with corresponding versions  
 ```
 
 ### Install command
