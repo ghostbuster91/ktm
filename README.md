@@ -6,6 +6,11 @@ Installation:
 ```
 sh -c "$(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh -O -)"
 ```
+Modify you `$PATH` to include `~/.ktm/bin`
+
+For example if you use bash shell add following line to your `.bashrc`:
+
+`export PATH=$PATH:~/.ktm/bin`
 
 ## Motivation
 If you stripped it off, it is basically another tool to manage binary files. So the question comes, why did I create it?
