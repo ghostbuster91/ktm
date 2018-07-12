@@ -4,11 +4,11 @@ KTM allows you to install command line applications(gradle based) directly from 
 
 Installation:
 ```
-sh -c "$(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh -O -)"
+bash -c "$(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh -O -)"
 ```
 *If you are using fish shell you have to remove $ sing from installation command*
 ```
-sh -c "(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh -O -)"
+bash -c "(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh -O -)"
 ```
 Modify you `$PATH` to include `~/.ktm/bin`
 
