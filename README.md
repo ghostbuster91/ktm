@@ -133,7 +133,7 @@ e19240a0fb --> ok
 
 ### Requirements for applications
 There are only two requirements for applications, so they can be installed using ktm.
-1. Use gradle as build system
+1. Use gradle as a build system
 2. Have application plugin applied
 
 An example application can be found [here](https://github.com/ghostbuster91/ktm-example-artifact/)
