@@ -2,7 +2,8 @@
 
 KTM allows you to install command line applications(gradle based) directly from github.
 
-Installation:
+## Installation
+**Using wget**
 ```
 bash -c "$(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh -O -)"
 ```
@@ -10,6 +11,11 @@ bash -c "$(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/insta
 ```
 bash -c "(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh -O -)"
 ```
+**Using curl**
+```
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ghottbuster91/ktm/master/install.sh)"
+```
+
 Modify you `$PATH` to include `~/.ktm/bin`
 
 For example if you use bash shell add following line to your `.bashrc`:
