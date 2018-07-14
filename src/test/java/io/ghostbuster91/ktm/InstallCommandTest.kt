@@ -1,9 +1,6 @@
 package io.ghostbuster91.ktm
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import io.ghostbuster91.ktm.utils.installTestRepo
 import org.junit.Before
 import org.junit.Rule
@@ -42,6 +39,14 @@ class InstallCommandTest {
         val symlink = File(testFolderRuler.root.absolutePath, ".ktm/bin/validRepo")
         assert(symlink.exists())
         assert(Files.isSymbolicLink(symlink.toPath()))
+    }
+
+    @Test
+    fun shouldNotInstallLibraryIfLibraryInGivenVersionAlreadyExists() {
+        installTestRepo("testOrg:validRepo")
+        reset(logger)
+        installTestRepo("testOrg:validRepo")
+        verify(logger).info("Library already installed in given version!")
     }
 
     private fun installTestRepo(name: String) = installTestRepo(name, testFolderRuler.root)
