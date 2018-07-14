@@ -19,10 +19,10 @@ class TestArtifactToLinkTranslator : ArtifactToLinkTranslator {
     }
 }
 
-fun installTestRepo(name: String, rootFile: File) {
+fun installTestRepo(rootFile: File, params: Array<String>, artifactToLinkTranslator: ArtifactToLinkTranslator = TestArtifactToLinkTranslator()) {
     Install(KtmDirectoryManager { rootFile },
-            TestArtifactToLinkTranslator(),
+            artifactToLinkTranslator,
             TarFileDownloader(Observable.never()),
             IdentifierResolver(ArtifactSolverDispatcher(listOf(SimpleArtifactResolver())), VersionSolverDispatcher(listOf(DefaultVersionResolver())))
-    ).main(arrayOf(name))
+    ).main(params)
 }

@@ -28,7 +28,7 @@ class ListCommandTest {
 
     @Test
     fun shouldReturnInstalledApplicationTogetherWithItsVersion() {
-        installTestRepo("testOrg:validRepo", testFolderRuler.root)
+        installTestRepo(testFolderRuler.root, arrayOf("testOrg:validRepo"))
         reset(logger)
         listApps()
         verify(logger).info("validRepo --> master-SNAPSHOT")
@@ -36,8 +36,8 @@ class ListCommandTest {
 
     @Test
     fun shouldReturnInstalledApplicationsTogetherWithTheirVersions() {
-        installTestRepo("testOrg:validRepo", testFolderRuler.root)
-        installTestRepo("testOrg:otherValidRepo", testFolderRuler.root)
+        installTestRepo(testFolderRuler.root, arrayOf("testOrg:validRepo"))
+        installTestRepo(testFolderRuler.root, arrayOf("testOrg:otherValidRepo"))
         reset(logger)
         listApps()
         verify(logger).info("validRepo --> master-SNAPSHOT")

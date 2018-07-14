@@ -1,5 +1,7 @@
 package io.ghostbuster91.ktm.commands
 
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
 import io.ghostbuster91.ktm.ArtifactToLinkTranslator
 import io.ghostbuster91.ktm.Downloader
 import io.ghostbuster91.ktm.components.KtmDirectoryManager
@@ -14,9 +16,11 @@ class Install(private val directoryManager: KtmDirectoryManager,
               private val tarFileDownloader: TarFileDownloader,
               identifierResolver: IdentifierResolver) : ParsedIdentifierCommand(identifierResolver, help = "Install or update given package") {
 
+    private val isForce by option("--force").flag("--no-force", default = false)
+
     override fun run() {
         try {
-            if (!directoryManager.getLibraryDir(parsed).exists()) {
+            if (!directoryManager.getLibraryDir(parsed).exists() || isForce) {
                 installer(directoryManager, artifactToLinkTranslator, tarFileDownloader)(parsed)
             } else {
                 logger.info("Library already installed in given version!")

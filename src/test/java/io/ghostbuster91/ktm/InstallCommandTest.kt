@@ -1,6 +1,7 @@
 package io.ghostbuster91.ktm
 
 import com.nhaarman.mockito_kotlin.*
+import io.ghostbuster91.ktm.utils.TestArtifactToLinkTranslator
 import io.ghostbuster91.ktm.utils.installTestRepo
 import org.junit.Before
 import org.junit.Rule
@@ -22,20 +23,20 @@ class InstallCommandTest {
 
     @Test()
     fun shouldThrowExceptionIfArchiveDoesNotContainAnyBinaryFile() {
-        installTestRepo("testOrg:noBinaryRepo")
+        installRepo("testOrg:noBinaryRepo")
         verify(logger).error(eq("No binary files found!"), any())
     }
 
     @Test
     fun shouldDecompressBinaryFile() {
-        installTestRepo("testOrg:validRepo")
+        installRepo("testOrg:validRepo")
         val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/master-SNAPSHOT/sample-bin")
         assert(binaryFile.exists())
     }
 
     @Test
     fun shouldCreateSymlinkToBinary() {
-        installTestRepo("testOrg:validRepo")
+        installRepo("testOrg:validRepo")
         val symlink = File(testFolderRuler.root.absolutePath, ".ktm/bin/validRepo")
         assert(symlink.exists())
         assert(Files.isSymbolicLink(symlink.toPath()))
@@ -43,12 +44,27 @@ class InstallCommandTest {
 
     @Test
     fun shouldNotInstallLibraryIfLibraryInGivenVersionAlreadyExists() {
-        installTestRepo("testOrg:validRepo")
+        installRepo("testOrg:validRepo")
         reset(logger)
-        installTestRepo("testOrg:validRepo")
+        val artifactToListTranslator = mock<ArtifactToLinkTranslator>()
+        installRepo("testOrg:validRepo", artifactToLinkTranslator = artifactToListTranslator)
         verify(logger).info("Library already installed in given version!")
+        verifyNoMoreInteractions(artifactToListTranslator)
     }
 
-    private fun installTestRepo(name: String) = installTestRepo(name, testFolderRuler.root)
+    @Test
+    fun shouldInstallLibraryIfItExistsWhenForceFlagIsPassed() {
+        installRepo("testOrg:validRepo")
+        reset(logger)
+        val artifactToLinkTranslator = spy(TestArtifactToLinkTranslator())
+        installRepo("testOrg:validRepo", "--force", artifactToLinkTranslator = artifactToLinkTranslator)
+        verify(logger, never()).info("Library already installed in given version!")
+        verify(artifactToLinkTranslator).getDownloadLink(any())
+    }
+
+    private fun installRepo(
+            vararg params: String,
+            artifactToLinkTranslator: ArtifactToLinkTranslator = TestArtifactToLinkTranslator()
+    ) = installTestRepo(testFolderRuler.root, arrayOf(*params), artifactToLinkTranslator)
 }
 
