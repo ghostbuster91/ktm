@@ -39,6 +39,7 @@ private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator { 
 }
 
 private val tarFileDownloader = TarFileDownloader(createWaitingIndicator())
+
 fun main(args: Array<String>) {
     Log.setOutput(NullPrintStream())
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog")
