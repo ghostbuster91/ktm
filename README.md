@@ -13,7 +13,7 @@ bash -c "(wget https://raw.githubusercontent.com/ghostbuster91/ktm/master/instal
 ```
 **Using curl**
 ```
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/ghottbuster91/ktm/master/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ghostbuster91/ktm/master/install.sh)"
 ```
 
 Modify your `$PATH` to include `~/.ktm/bin`
