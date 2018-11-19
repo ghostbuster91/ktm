@@ -9,7 +9,9 @@ import java.nio.file.Paths
 class List(private val directoryManager: KtmDirectoryManager) : CliktCommand("Display all installed packages with corresponding versions") {
     override fun run() {
         directoryManager.getBinaries()
-                .map { it.name.baseName to Files.readSymbolicLink(Paths.get(it.name.path)).subpath(6, 7) }
+                .map {
+                    it.name.baseName to Files.readSymbolicLink(Paths.get(it.name.path)).reversed().drop(1).first()
+                }
                 .forEach { logger.info("${it.first} --> ${it.second}") }
     }
 }
