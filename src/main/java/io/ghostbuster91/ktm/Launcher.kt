@@ -25,12 +25,9 @@ typealias GetHomeDir = () -> File
 var logger: Logger = LineWrappingLogger()
 
 private val directoryManager = KtmDirectoryManager { File(System.getProperty("user.home")) }
-
 private val aliasRepository = AliasFileRepository(directoryManager)
-
-private val artifactSolverDispatcher = ArtifactSolverDispatcher(listOf(AliasArtifactResolver(aliasRepository), SearchingArtifactResolver {
-    { jitPackApi.search(it).blockingFirst() }.withWaiter()
-}, SimpleArtifactResolver()))
+private val searchingArtifactResolver = SearchingArtifactResolver { { jitPackApi.search(it).blockingFirst() }.withWaiter() }
+private val artifactSolverDispatcher = ArtifactSolverDispatcher(listOf(AliasArtifactResolver(aliasRepository), searchingArtifactResolver, SimpleArtifactResolver()))
 
 private val identifierSolver = IdentifierResolver(artifactSolverDispatcher, versionSolverDispatcher())
 
@@ -59,6 +56,7 @@ private class KTM : NoRunCliktCommand() {
         versionOption(Build.getVersion())
     }
 }
+
 private fun <T> (() -> T).withWaiter(): T {
     val waiter = createWaitingIndicator().subscribe()
     return invoke().also { waiter.dispose() }
