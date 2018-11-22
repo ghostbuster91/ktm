@@ -65,7 +65,7 @@ KTM will ask jitpack about all artifacts which contain `ktm-example-artifact` in
 If result will be a single item, ktm will proceed with installation, otherwise it will stop printing matched artifacts.
 Version, if not provided, will be automatically picked up by asking jitpack about latest successful built of given artifact.
 
-*Note: jitPack api returns only results for repositories which have at least one `git tag` and that tag has been requested to download.*
+*Note: jitPack api returns only results for repositories which have at least one `git tag` and that tag has been requested to download. You can ommit this limitation using [ktm-jitpack-notifier](https://github.com/ghostbuster91/ktm-jitpack-notifier/tree/master).*
 
 ### Use command
 If you have many versions of single artifact installed you can easily switch between them using `use` command:
@@ -94,7 +94,7 @@ ktm search com.github.ghostbuster91
 com.github.ghostbuster91:ktm --> [0.0.5, 0.0.4, 0.0.2]
 com.github.ghostbuster91:solidity-collision-checker --> [1.0.0]
 ```
-*Search command will show you only artifacts which were built by jitPack, which means that they were requested to download at least once.*
+*Search command will show you only artifacts which were built by jitPack, which means that they were requested to download at least once. You can ommit this limitation using [ktm-jitpack-notifier](https://github.com/ghostbuster91/ktm-jitpack-notifier/tree/master).*
 ### Aliases command
 
 If you work in a team and someone within it is developing a tool for the rest, you will find your self constantly updating it. In some cases naming resolving may not work for you and typing the fully qualified name of the artifact is tedius.
@@ -131,7 +131,7 @@ e19240a0fb --> ok
 6624eefc9f --> ok
 0.0.5 --> ok
 ```
-*Info command will show you only artifacts which were built by jitPack, which means that they were requested to download at least once.*
+*Info command will show you only artifacts which were built by jitPack, which means that they were requested to download at least once. You can ommit this limitation using [ktm-jitpack-notifier](https://github.com/ghostbuster91/ktm-jitpack-notifier/tree/master).*
 
 ### Requirements for applications
 There are only two requirements for applications, so they can be installed using ktm.
