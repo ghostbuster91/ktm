@@ -9,6 +9,7 @@ import org.apache.commons.vfs2.FileSelector
 import org.apache.commons.vfs2.VFS
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Paths
 
 class KtmDirectoryManager(homeDir: GetHomeDir) {
     private val ktmDir = KtmDir(homeDir().createChild(".ktm"))
@@ -46,6 +47,15 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
                 ?.toList() ?: emptyList()
     }
 
+    fun getActiveModules(): List<Identifier.Parsed> {
+        return getBinaries()
+                .map {
+                    val unwrapedBinery = Files.readSymbolicLink(Paths.get(it.name.path))
+                    val reversed = unwrapedBinery.reversed()
+                    Identifier.Parsed(reversed.drop(3).first().toString(), reversed.drop(2).first().toString(), reversed.drop(1).first().toString())
+                }
+    }
+
     private fun File.linkTo(fileObject: FileObject) {
         if (exists()) {
             delete()
@@ -73,3 +83,5 @@ private class KtmDir(private val ktmDir: File) {
     val modules = ktmDir.createChild("modules")
     fun createChild(name: String) = ktmDir.createChild(name)
 }
+
+class Module(val group: String, val artifact: String, val version: String)

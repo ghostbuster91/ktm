@@ -33,7 +33,7 @@ class Install(private val directoryManager: KtmDirectoryManager,
     }
 }
 
-private fun installer(ktmDirectoryManager: KtmDirectoryManager,
+fun installer(ktmDirectoryManager: KtmDirectoryManager,
                       artifactToLinkTranslator: ArtifactToLinkTranslator,
                       downloader: Downloader
 ) = { parsed: Identifier.Parsed ->
