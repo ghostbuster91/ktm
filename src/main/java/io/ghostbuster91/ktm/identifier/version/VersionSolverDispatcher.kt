@@ -7,7 +7,7 @@ class VersionSolverDispatcher(private val versionResolver: List<VersionResolver>
         val versionedIdentifier = versionResolver.foldUntil(identifier, { acc, resolver -> resolver.resolve(acc as VersionedIdentifier.Unparsed) }, { acc -> acc is VersionedIdentifier.Unparsed })
         when (versionedIdentifier) {
             is VersionedIdentifier.Parsed -> return versionedIdentifier
-            is VersionedIdentifier.Unparsed -> throw VersionUnresolved("Cannot resolver version for: $versionedIdentifier" +
+            is VersionedIdentifier.Unparsed -> throw VersionUnresolved("Cannot resolver version for: $versionedIdentifier \n" +
                     "Note that automatic version pickup works only for artifacts which have remote tags.\n" +
                     "For other artifacts provide version explicitly using --version option.")
         }

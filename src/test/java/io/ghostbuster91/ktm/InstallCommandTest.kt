@@ -62,6 +62,13 @@ class InstallCommandTest {
         verify(artifactToLinkTranslator).getDownloadLink(any())
     }
 
+    @Test
+    fun `should install library in given version when version option provided`() {
+        installRepo("testOrg:validRepo", "--version=1.0.0")
+        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/1.0.0/sample-bin")
+        assert(binaryFile.exists())
+    }
+
     private fun installRepo(
             vararg params: String,
             artifactToLinkTranslator: ArtifactToLinkTranslator = TestArtifactToLinkTranslator()
