@@ -32,7 +32,7 @@ fun installTestRepo(rootFile: File, params: Array<String>, artifactToLinkTransla
 fun update(rootFile: File, artifactToLinkTranslator: ArtifactToLinkTranslator = TestArtifactToLinkTranslator()) {
     Update(KtmDirectoryManager { rootFile },
             artifactToLinkTranslator,
-            VersionSolverDispatcher(listOf(TestVersionResolver())),
+            TestVersionResolver(),
             TarFileDownloader(Observable.never())).main(emptyArray())
 }
 

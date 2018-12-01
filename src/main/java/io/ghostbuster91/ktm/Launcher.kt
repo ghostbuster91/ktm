@@ -29,7 +29,10 @@ private val aliasRepository = AliasFileRepository(directoryManager)
 private val searchingArtifactResolver = SearchingArtifactResolver { { jitPackApi.search(it).blockingFirst() }.withWaiter() }
 private val artifactSolverDispatcher = ArtifactSolverDispatcher(listOf(AliasArtifactResolver(aliasRepository), searchingArtifactResolver, SimpleArtifactResolver()))
 
-private val identifierSolver = IdentifierResolver(artifactSolverDispatcher, versionSolverDispatcher())
+val latestVersionFetchingIdentifierResolver = LatestVersionFetchingIdentifierResolver { g, a ->
+    { jitPackApi.latestRelease(g, a).blockingFirst() }.withWaiter()
+}
+private val identifierSolver = IdentifierResolver(artifactSolverDispatcher, versionSolverDispatcher(latestVersionFetchingIdentifierResolver))
 
 private val jitPackArtifactToLinkTranslator = JitPackArtifactToLinkTranslator { g, a, v ->
     { buildApi.getBuildLog(g, a, v).blockingFirst() }.withWaiter()
@@ -46,7 +49,8 @@ fun main(args: Array<String>) {
             Info(jitPackApi, artifactSolverDispatcher),
             Search(jitPackApi),
             Use(directoryManager, identifierSolver),
-            io.ghostbuster91.ktm.commands.List(directoryManager)
+            io.ghostbuster91.ktm.commands.List(directoryManager),
+            Update(directoryManager, jitPackArtifactToLinkTranslator, latestVersionFetchingIdentifierResolver, tarFileDownloader)
     ).main(args)
 }
 
@@ -66,9 +70,7 @@ private fun createWaitingIndicator(): Observable<out Any> = Observable.interval(
         .doOnNext { logger.append(".") }
         .doOnDispose { logger.info("") }
 
-private fun versionSolverDispatcher(): VersionSolverDispatcher {
+private fun versionSolverDispatcher(latestVersionFetchingIdentifierResolver: LatestVersionFetchingIdentifierResolver): VersionSolverDispatcher {
     return VersionSolverDispatcher(listOf(SimpleVersionResolver(),
-            LatestVersionFetchingIdentifierResolver { g, a ->
-                { jitPackApi.latestRelease(g, a).blockingFirst() }.withWaiter()
-            }, DefaultVersionResolver()))
+            latestVersionFetchingIdentifierResolver, DefaultVersionResolver()))
 }

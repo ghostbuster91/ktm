@@ -11,7 +11,7 @@ import io.ghostbuster91.ktm.logger
 class Update(
         private val ktmDirectoryManager: KtmDirectoryManager,
         private val artifactToLinkTranslator: ArtifactToLinkTranslator,
-        private val versionSolverDispatcher: VersionSolverDispatcher,
+        private val latestReleaseVersionResolver: VersionSolverDispatcher.VersionResolver,
         private val downloader: Downloader
 ) : CliktCommand("Update all installed packages") {
 
@@ -24,7 +24,9 @@ class Update(
                     }
                 }
                 .also { println("Checking for updates...") }
-                .map { versionSolverDispatcher.resolve(it.asVersioned()).asIdentifier() }
+                .map { latestReleaseVersionResolver.resolve(it.asVersioned()) }
+                .filterIsInstance<VersionSolverDispatcher.VersionedIdentifier.Parsed>()
+                .map { it.asIdentifier() }
                 .filter {
                     val exists = ktmDirectoryManager.getLibraryDir(it).exists()
                     if (exists) {
