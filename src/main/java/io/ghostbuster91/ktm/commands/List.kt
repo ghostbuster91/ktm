@@ -32,6 +32,6 @@ class List(private val directoryManager: KtmDirectoryManager) : CliktCommand("Di
 
     private fun String.indent(size: Int): String {
         require(size > 1)
-        return this + (0..size).joinToString(" ") { "" }
+        return (0..size).joinToString(" ") { "" } + this
     }
 }
