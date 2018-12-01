@@ -12,6 +12,7 @@ function install() {
     tar xf ktm.tar
     rm ktm.tar
     mv ktm-${VERSION}/* ${VERSION}/ktm
+    rm -rf ktm-${VERSION}
     ln -s ~/.ktm/modules/com.github.ghostbuster91/ktm/${VERSION}/ktm/bin/ktm ~/.ktm/bin/ktm
 }
 
