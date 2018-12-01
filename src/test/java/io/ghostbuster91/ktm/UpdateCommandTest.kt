@@ -26,11 +26,11 @@ class UpdateCommandTest {
     fun `should update installed library to newer version`() {
         installTestRepo(testFolderRuler.root, params = arrayOf("testOrg:validRepo", "--version=1.0.0"))
         update(testFolderRuler.root)
-        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/1.2.0/bin/sample-bin")
+        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/1.2.0/irrelevant-name/bin/sample-bin")
         assert(binaryFile.exists())
         val symlink = File(testFolderRuler.root.absolutePath, ".ktm/bin/validRepo")
         assert(symlink.exists())
         val value = Files.readSymbolicLink(symlink.toPath())
-        assertEquals("1.2.0", value.toList().dropLast(2).last().toString())
+        assertEquals("1.2.0", value.toList().dropLast(3).last().toString())
     }
 }

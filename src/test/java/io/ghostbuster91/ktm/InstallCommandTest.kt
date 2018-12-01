@@ -30,7 +30,7 @@ class InstallCommandTest {
     @Test
     fun shouldDecompressBinaryFile() {
         installRepo("testOrg:validRepo")
-        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/master-SNAPSHOT/bin/sample-bin")
+        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/master-SNAPSHOT/irrelevant-name/bin/sample-bin")
         assert(binaryFile.exists())
     }
 
@@ -65,7 +65,7 @@ class InstallCommandTest {
     @Test
     fun `should install library in given version when version option provided`() {
         installRepo("testOrg:validRepo", "--version=1.0.0")
-        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/1.0.0/bin/sample-bin")
+        val binaryFile = File(testFolderRuler.root.absolutePath, ".ktm/modules/testOrg/validRepo/1.0.0/irrelevant-name/bin/sample-bin")
         assert(binaryFile.exists())
     }
 
