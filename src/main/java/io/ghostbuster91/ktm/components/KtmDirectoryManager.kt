@@ -56,6 +56,17 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
                 }
     }
 
+    fun getAllModules(): List<Identifier.Parsed> {
+        return VFS.getManager()
+                .resolveFile(ktmDir.modules.absolutePath)
+                .children
+                .flatMap { group ->
+                    group.children.flatMap { artifact ->
+                        artifact.children.map { versionFile -> Identifier.Parsed(group.name.baseName, artifact.name.baseName, versionFile.name.baseName) }
+                    }
+                }
+    }
+
     private fun File.linkTo(fileObject: FileObject) {
         if (exists()) {
             delete()
