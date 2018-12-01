@@ -67,7 +67,7 @@ class IdentifierResolverTest {
     @Test
     fun whenVersionProvidedJustParseIt() {
         val versionSolverDispatcher = VersionSolverDispatcher(listOf(SimpleVersionResolver()))
-        val identifier = versionSolverDispatcher.resolve(VersionedIdentifier.Unparsed(groupId = "com.github.myOrg", artifactId = "myRepo", version = "version"))
+        val identifier = versionSolverDispatcher.resolve(Artifact.Parsed(groupId = "com.github.myOrg", artifactId = "myRepo"), version = "version")
         identifier.let {
             assertEquals("com.github.myOrg", it.groupId)
             assertEquals("myRepo", it.artifactId)
@@ -78,7 +78,7 @@ class IdentifierResolverTest {
     @Test
     fun whenVersionNotProvidedShouldUseDefault() {
         val versionSolverDispatcher = VersionSolverDispatcher(listOf(DefaultVersionResolver(), SimpleVersionResolver()))
-        val identifier = versionSolverDispatcher.resolve(VersionedIdentifier.Unparsed(groupId = "com.github.myOrg", artifactId = "myRepo", version = null))
+        val identifier = versionSolverDispatcher.resolve(Artifact.Parsed(groupId = "com.github.myOrg", artifactId = "myRepo"), version = null)
         identifier.let {
             assertEquals("com.github.myOrg", it.groupId)
             assertEquals("myRepo", it.artifactId)

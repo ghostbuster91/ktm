@@ -37,7 +37,7 @@ fun update(rootFile: File, artifactToLinkTranslator: ArtifactToLinkTranslator = 
 }
 
 class TestVersionResolver : VersionSolverDispatcher.VersionResolver {
-    override fun resolve(identifier: VersionSolverDispatcher.VersionedIdentifier.Unparsed): VersionSolverDispatcher.VersionedIdentifier {
+    override fun resolve(identifier: VersionSolverDispatcher.VersionedIdentifier.Unparsed, version: String?): VersionSolverDispatcher.VersionedIdentifier {
         val libDirectory = File(javaClass.classLoader.getResource("${identifier.groupId}/${identifier.artifactId}").path)
         val newestVersion = libDirectory.list()
                 .toList()

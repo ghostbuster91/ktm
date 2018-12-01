@@ -12,8 +12,7 @@ class IdentifierResolver(
         return unparsed
                 .let { ArtifactSolverDispatcher.Artifact.Unparsed(it.text) }
                 .let(artifactSolverDispatcher::resolve)
-                .let { VersionSolverDispatcher.VersionedIdentifier.Unparsed(groupId = it.groupId, artifactId = it.artifactId, version = version) }
-                .let(versionSolverDispatcher::resolve)
+                .let { versionSolverDispatcher.resolve(it, version) }
                 .let { Identifier.Parsed(it.groupId, it.artifactId, it.version) }
     }
 }

@@ -24,7 +24,7 @@ class Update(
                     }
                 }
                 .also { println("Checking for updates...") }
-                .map { latestReleaseVersionResolver.resolve(it.asVersioned()) }
+                .map { latestReleaseVersionResolver.resolve(it.asVersioned(), it.version) }
                 .filterIsInstance<VersionSolverDispatcher.VersionedIdentifier.Parsed>()
                 .map { it.asIdentifier() }
                 .filter {
@@ -44,5 +44,5 @@ class Update(
             Identifier.Parsed(groupId, artifactId, version)
 
     private fun Identifier.Parsed.asVersioned() =
-            VersionSolverDispatcher.VersionedIdentifier.Unparsed(groupId, artifactId, version)
+            VersionSolverDispatcher.VersionedIdentifier.Unparsed(groupId, artifactId)
 }

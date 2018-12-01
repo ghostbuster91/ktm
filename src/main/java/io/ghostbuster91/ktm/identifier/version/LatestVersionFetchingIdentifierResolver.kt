@@ -5,9 +5,9 @@ import io.ghostbuster91.ktm.logger
 
 class LatestVersionFetchingIdentifierResolver(private val latestApi: (String, String) -> JitPackApi.VersionResponse) : VersionSolverDispatcher.VersionResolver {
 
-    override fun resolve(identifier: VersionSolverDispatcher.VersionedIdentifier.Unparsed): VersionSolverDispatcher.VersionedIdentifier {
+    override fun resolve(identifier: VersionSolverDispatcher.VersionedIdentifier.Unparsed, version: String?): VersionSolverDispatcher.VersionedIdentifier {
         logger.append("Looking for latest release for $identifier")
-        return if (identifier.version == null) {
+        return if (version == null) {
             val response = latestApi(identifier.groupId, identifier.artifactId)
             if (response.version != null) {
                 logger.info("Found ${response.version}")

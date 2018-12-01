@@ -1,10 +1,12 @@
 package io.ghostbuster91.ktm.identifier.version
 
+import io.ghostbuster91.ktm.identifier.artifact.ArtifactSolverDispatcher
 import io.ghostbuster91.ktm.utils.foldUntil
 
 class VersionSolverDispatcher(private val versionResolver: List<VersionResolver>) {
-    fun resolve(identifier: VersionedIdentifier): VersionedIdentifier.Parsed {
-        val versionedIdentifier = versionResolver.foldUntil(identifier, { acc, resolver -> resolver.resolve(acc as VersionedIdentifier.Unparsed) }, { acc -> acc is VersionedIdentifier.Unparsed })
+    fun resolve(artifact: ArtifactSolverDispatcher.Artifact.Parsed, version: String?): VersionedIdentifier.Parsed {
+        val identifier: VersionedIdentifier = VersionedIdentifier.Unparsed(artifact.groupId, artifact.artifactId)
+        val versionedIdentifier = versionResolver.foldUntil(identifier, { acc, resolver -> resolver.resolve(acc as VersionedIdentifier.Unparsed, version) }, { acc -> acc is VersionedIdentifier.Unparsed })
         when (versionedIdentifier) {
             is VersionedIdentifier.Parsed -> return versionedIdentifier
             is VersionedIdentifier.Unparsed -> throw VersionUnresolved("Cannot resolver version for: $versionedIdentifier \n" +
@@ -14,7 +16,7 @@ class VersionSolverDispatcher(private val versionResolver: List<VersionResolver>
     }
 
     interface VersionResolver {
-        fun resolve(identifier: VersionedIdentifier.Unparsed): VersionedIdentifier
+        fun resolve(identifier: VersionedIdentifier.Unparsed, version: String?): VersionedIdentifier
     }
 
     sealed class VersionedIdentifier {
@@ -25,7 +27,7 @@ class VersionSolverDispatcher(private val versionResolver: List<VersionResolver>
             override fun toString() = "$groupId:$artifactId:$version"
         }
 
-        data class Unparsed(override val groupId: String, override val artifactId: String, val version: String?) : VersionedIdentifier() {
+        data class Unparsed(override val groupId: String, override val artifactId: String) : VersionedIdentifier() {
             override fun toString() = "$groupId:$artifactId"
             fun toParsed(version: String) = Parsed(groupId, artifactId, version)
         }
