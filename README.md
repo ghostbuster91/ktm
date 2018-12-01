@@ -133,6 +133,13 @@ e19240a0fb --> ok
 ```
 *Info command will show you only artifacts which were built by jitPack, which means that they were requested to download at least once. You can ommit this limitation using [ktm-jitpack-notifier](https://github.com/ghostbuster91/ktm-jitpack-notifier/tree/master).*
 
+### Update command
+You can simply update all applications installed via ktm by invoking
+```
+ktm update
+```
+This works based on github tags, which means that application will be updated only if it has a newer tag in repository.
+
 ### Requirements for applications
 There are only two requirements for applications, so they can be installed using ktm.
 1. Use gradle as a build system
