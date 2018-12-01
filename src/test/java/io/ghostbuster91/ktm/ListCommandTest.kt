@@ -31,7 +31,7 @@ class ListCommandTest {
         installTestRepo(testFolderRuler.root, arrayOf("testOrg:validRepo"))
         reset(logger)
         listApps()
-        verify(logger).info("validRepo --> master-SNAPSHOT")
+        verify(logger).info("testOrg:validRepo --> master-SNAPSHOT")
     }
 
     @Test
@@ -40,8 +40,8 @@ class ListCommandTest {
         installTestRepo(testFolderRuler.root, arrayOf("testOrg:otherValidRepo"))
         reset(logger)
         listApps()
-        verify(logger).info("validRepo --> master-SNAPSHOT")
-        verify(logger).info("otherValidRepo --> master-SNAPSHOT")
+        verify(logger).info("testOrg:validRepo --> master-SNAPSHOT")
+        verify(logger).info("testOrg:otherValidRepo --> master-SNAPSHOT")
     }
 
     @Test

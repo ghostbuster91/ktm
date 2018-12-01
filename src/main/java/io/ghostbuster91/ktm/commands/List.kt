@@ -26,7 +26,7 @@ class List(private val directoryManager: KtmDirectoryManager) : CliktCommand("Di
                     }
         } else {
             directoryManager.getActiveModules()
-                    .forEach { logger.info("${it.artifactId} --> ${it.version}") }
+                    .forEach { logger.info("${it.name} --> ${it.version}") }
         }
     }
 

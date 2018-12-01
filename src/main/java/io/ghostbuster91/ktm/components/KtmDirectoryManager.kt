@@ -52,7 +52,7 @@ class KtmDirectoryManager(homeDir: GetHomeDir) {
                 .map {
                     val unwrapedBinery = Files.readSymbolicLink(Paths.get(it.name.path))
                     val reversed = unwrapedBinery.reversed()
-                    Identifier.Parsed(reversed.drop(3).first().toString(), reversed.drop(2).first().toString(), reversed.drop(1).first().toString())
+                    Identifier.Parsed(reversed.drop(4).first().toString(), reversed.drop(3).first().toString(), reversed.drop(2).first().toString())
                 }
     }
 
