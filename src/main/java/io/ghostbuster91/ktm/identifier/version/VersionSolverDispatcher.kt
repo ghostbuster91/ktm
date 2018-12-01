@@ -27,6 +27,7 @@ class VersionSolverDispatcher(private val versionResolver: List<VersionResolver>
 
         data class Unparsed(override val groupId: String, override val artifactId: String, val version: String?) : VersionedIdentifier() {
             override fun toString() = "$groupId:$artifactId"
+            fun toParsed(version: String) = Parsed(groupId, artifactId, version)
         }
     }
 

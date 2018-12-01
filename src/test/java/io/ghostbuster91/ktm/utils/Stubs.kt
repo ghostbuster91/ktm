@@ -44,6 +44,6 @@ class TestVersionResolver : VersionSolverDispatcher.VersionResolver {
                 .filterNot { it.contains("SNAPSHOT") }
                 .sortedDescending()
                 .first()
-        return VersionSolverDispatcher.VersionedIdentifier.Parsed(identifier.groupId, identifier.artifactId, newestVersion)
+        return identifier.toParsed(newestVersion)
     }
 }

@@ -11,7 +11,7 @@ class LatestVersionFetchingIdentifierResolver(private val latestApi: (String, St
             val response = latestApi(identifier.groupId, identifier.artifactId)
             if (response.version != null) {
                 logger.info("Found ${response.version}")
-                VersionSolverDispatcher.VersionedIdentifier.Parsed(groupId = identifier.groupId, artifactId = identifier.artifactId, version = response.version)
+                identifier.toParsed(response.version)
             } else {
                 identifier
             }
