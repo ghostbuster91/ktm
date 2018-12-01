@@ -10,20 +10,20 @@ import io.ghostbuster91.ktm.logger
 
 class Update(
         private val ktmDirectoryManager: KtmDirectoryManager,
-        private val versionSolverDispatcher: VersionSolverDispatcher,
         private val artifactToLinkTranslator: ArtifactToLinkTranslator,
+        private val versionSolverDispatcher: VersionSolverDispatcher,
         private val downloader: Downloader
 ) : CliktCommand("Update all installed packages") {
 
     override fun run() {
         ktmDirectoryManager.getActiveModules()
-                .also {
+                .also { modules ->
                     logger.info("Following active modules were found:")
-                    it.forEach {
+                    modules.forEach {
                         println("${it.groupId}:${it.artifactId}:${it.version}")
                     }
                 }
-                .also { println("Updating...") }
+                .also { println("Checking for updates...") }
                 .map { versionSolverDispatcher.resolve(it.asVersioned()).asIdentifier() }
                 .filter {
                     val exists = ktmDirectoryManager.getLibraryDir(it).exists()
@@ -33,6 +33,7 @@ class Update(
                     !exists
                 }
                 .forEach {
+                    println("Updating ${it.name} to ${it.version}")
                     installer(ktmDirectoryManager, artifactToLinkTranslator, downloader)(it)
                 }
     }
