@@ -29,5 +29,5 @@ private fun okHttpClient() = OkHttpClient.Builder()
         .build()
 
 fun certificatePinner(): CertificatePinner {
- return CertificatePinner.Builder().add("jitpack.io","sha256/Dyv/fiIcKyn0iCTIIUx2UVmp6Qzm6rHXzt9RyVk+xFI=").build()
+ return CertificatePinner.Builder().add("jitpack.io"," sha256/tkGMAXB+eaYdk6EtfZzzDsBsWkMehGX3myHGTd8dBEg=").build()
 }
