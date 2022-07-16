@@ -2,7 +2,7 @@
 set -e
 
 function install() {
-    VERSION="0.0.7"
+    VERSION="0.0.8"
     test ! -e ~/.ktm || (echo "~/.ktm exists!"; exit 1)
     mkdir -p ~/.ktm/modules/com.github.ghostbuster91/ktm/${VERSION}/ktm
     mkdir ~/.ktm/bin
